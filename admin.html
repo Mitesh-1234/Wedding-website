@@ -1,0 +1,1163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel - Wedding Management</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js"></script>
+    <style>
+        :root {
+            --primary: #d4af37;
+            --secondary: #8b7355;
+            --dark: #333;
+            --light: #fff;
+            --danger: #dc3545;
+            --success: #28a745;
+            --warning: #ffc107;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f5f5f5;
+        }
+        
+        .login-container {
+            max-width: 400px;
+            margin: 100px auto;
+            padding: 40px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0,0,0,0.1);
+        }
+        
+        .admin-container {
+            display: none;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-control {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        
+        .btn {
+            padding: 12px 30px;
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            width: 100%;
+        }
+        
+        .btn:hover {
+            background-color: var(--secondary);
+        }
+        
+        .dashboard {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .stat-card {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+        
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: var(--primary);
+        }
+        
+        .tab-container {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        
+        .tabs {
+            display: flex;
+            background: #f8f9fa;
+            border-bottom: 1px solid #dee2e6;
+        }
+        
+        .tab {
+            padding: 15px 30px;
+            cursor: pointer;
+            border: none;
+            background: none;
+            flex: 1;
+        }
+        
+        .tab.active {
+            background: white;
+            border-bottom: 3px solid var(--primary);
+        }
+        
+        .tab-content {
+            padding: 30px;
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        .scanner-container {
+            text-align: center;
+            margin: 20px 0;
+        }
+        
+        #qr-video {
+            width: 100%;
+            max-width: 400px;
+            border: 2px solid var(--primary);
+            border-radius: 10px;
+        }
+        
+        .scanner-result {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 5px;
+            display: none;
+        }
+        
+        .scanner-success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        
+        .scanner-warning {
+            background: #fff3cd;
+            color: #856404;
+            border: 1px solid #ffeaa7;
+        }
+        
+        .scanner-danger {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        
+        .day-selector {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin: 20px 0;
+        }
+        
+        .day-option {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 20px;
+            border: 2px solid var(--primary);
+            border-radius: 30px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .day-option.selected {
+            background-color: var(--primary);
+            color: white;
+        }
+        
+        .day-option input {
+            display: none;
+        }
+        
+        .current-day-display {
+            text-align: center;
+            margin: 15px 0;
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: var(--primary);
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        
+        th {
+            background-color: #f8f9fa;
+            font-weight: bold;
+        }
+        
+        .export-btn {
+            background-color: var(--success);
+            margin: 10px 0;
+        }
+        
+        .logout-btn {
+            background-color: var(--danger);
+            width: auto;
+            position: absolute;
+            top: 20px;
+            right: 20px;
+        }
+        
+        .scanner-controls {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-top: 20px;
+        }
+        
+        .scanner-controls .btn {
+            width: auto;
+            min-width: 150px;
+        }
+        
+        .cooldown-indicator {
+            text-align: center;
+            margin: 10px 0;
+            padding: 8px;
+            background: #e9ecef;
+            border-radius: 5px;
+            font-size: 0.9rem;
+            display: none;
+        }
+        
+        .cooldown-active {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        /* Real-time indicator */
+        .realtime-indicator {
+            position: fixed;
+            top: 10px;
+            left: 10px;
+            background: var(--success);
+            color: white;
+            padding: 5px 10px;
+            border-radius: 15px;
+            font-size: 0.8rem;
+            display: none;
+        }
+
+        .realtime-indicator.offline {
+            background: var(--danger);
+        }
+    </style>
+</head>
+<body>
+    <!-- Real-time Connection Indicator -->
+    <div class="realtime-indicator" id="realtimeIndicator">🟢 Live</div>
+
+    <!-- Login Section -->
+    <div class="login-container" id="loginSection">
+        <h2>Admin Login</h2>
+        <form id="adminLoginForm">
+            <div class="form-group">
+                <label>Username</label>
+                <input type="text" class="form-control" id="username" required>
+            </div>
+            <div class="form-group">
+                <label>Password</label>
+                <input type="password" class="form-control" id="password" required>
+            </div>
+            <button type="submit" class="btn">Login</button>
+        </form>
+    </div>
+
+    <!-- Admin Dashboard -->
+    <div class="admin-container" id="adminDashboard">
+        <button class="btn logout-btn" onclick="logout()">Logout</button>
+        
+        <h1>Wedding Admin Panel</h1>
+        
+        <!-- Statistics Dashboard -->
+        <div class="dashboard">
+            <div class="stat-card">
+                <div class="stat-number" id="totalGuests">0</div>
+                <div>Total Guests</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="day1Guests">0</div>
+                <div>Day 1 Checked In</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="day2Guests">0</div>
+                <div>Day 2 Checked In</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="day3Guests">0</div>
+                <div>Day 3 Checked In</div>
+            </div>
+        </div>
+
+        <!-- Tabs -->
+        <div class="tab-container">
+            <div class="tabs">
+                <button class="tab active" onclick="openTab('scanner')">QR Scanner</button>
+                <button class="tab" onclick="openTab('guests')">Guest List</button>
+                <button class="tab" onclick="openTab('attendance')">Attendance</button>
+                <button class="tab" onclick="openTab('reports')">Reports</button>
+            </div>
+
+            <!-- Scanner Tab -->
+            <div class="tab-content active" id="scanner">
+                <h2>QR Code Scanner</h2>
+                
+                <!-- Day Selection -->
+                <div class="day-selector">
+                    <div class="day-option selected" data-day="day1">
+                        <input type="radio" name="scanDay" id="day1-radio" value="day1" checked>
+                        <label for="day1-radio">Day 1 - Welcome Dinner</label>
+                    </div>
+                    <div class="day-option" data-day="day2">
+                        <input type="radio" name="scanDay" id="day2-radio" value="day2">
+                        <label for="day2-radio">Day 2 - Wedding Day</label>
+                    </div>
+                    <div class="day-option" data-day="day3">
+                        <input type="radio" name="scanDay" id="day3-radio" value="day3">
+                        <label for="day3-radio">Day 3 - Farewell Brunch</label>
+                    </div>
+                </div>
+                
+                <div class="current-day-display" id="currentDayDisplay">
+                    Currently Scanning: Day 1 - Welcome Dinner
+                </div>
+
+                <!-- Cooldown Indicator -->
+                <div class="cooldown-indicator" id="cooldownIndicator">
+                    ⏳ Scanner cooldown: <span id="cooldownTimer">3</span>s
+                </div>
+
+                <div class="scanner-container">
+                    <div id="scanner-area" style="position: relative;">
+                        <video id="qr-video" width="400" height="300" style="border: 1px solid #ccc;"></video>
+                        <canvas id="qr-canvas" style="display: none;"></canvas>
+                        <div id="scanner-overlay" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none;"></div>
+                    </div>
+                    
+                    <!-- Scanner Results -->
+                    <div class="scanner-result scanner-success" id="scannerSuccess">
+                        <h3>✓ Check-in Successful</h3>
+                        <p id="successInfo"></p>
+                    </div>
+                    
+                    <div class="scanner-result scanner-warning" id="scannerWarning">
+                        <h3>⚠ Already Checked In</h3>
+                        <p id="warningInfo"></p>
+                    </div>
+                    
+                    <div class="scanner-result scanner-danger" id="scannerError">
+                        <h3>❌ Error</h3>
+                        <p id="errorInfo"></p>
+                    </div>
+                </div>
+                
+                <div class="scanner-controls">
+                    <button class="btn" onclick="initScanner()">Start Scanner</button>
+                    <button class="btn" onclick="stopScanner()" style="background-color: var(--danger);">Stop Scanner</button>
+                </div>
+            </div>
+
+            <!-- Guest List Tab -->
+            <div class="tab-content" id="guests">
+                <h2>Guest List</h2>
+                <button class="btn export-btn" onclick="exportGuests()">Export to CSV</button>
+                <table id="guestsTable">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Email</th>
+                            <th>Phone</th>
+                            <th>Days Attending</th>
+                            <th>Additional Guests</th>
+                            <th>Day 1 Checked</th>
+                            <th>Day 2 Checked</th>
+                            <th>Day 3 Checked</th>
+                        </tr>
+                    </thead>
+                    <tbody id="guestsTableBody">
+                        <!-- Guest data will be populated here -->
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Attendance Tab -->
+            <div class="tab-content" id="attendance">
+                <h2>Attendance Records</h2>
+                <button class="btn export-btn" onclick="exportAttendance()">Export to CSV</button>
+                <table id="attendanceTable">
+                    <thead>
+                        <tr>
+                            <th>Guest Name</th>
+                            <th>RSVP ID</th>
+                            <th>Event Day</th>
+                            <th>Check-in Time</th>
+                            <th>Staff Member</th>
+                        </tr>
+                    </thead>
+                    <tbody id="attendanceTableBody">
+                        <!-- Attendance data will be populated here -->
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Reports Tab -->
+            <div class="tab-content" id="reports">
+                <h2>Reports & Analytics</h2>
+                <div class="dashboard">
+                    <div class="stat-card">
+                        <div class="stat-number" id="totalCheckedIn">0</div>
+                        <div>Total Check-ins</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="day1CheckedIn">0</div>
+                        <div>Day 1 Check-ins</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="day2CheckedIn">0</div>
+                        <div>Day 2 Check-ins</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="day3CheckedIn">0</div>
+                        <div>Day 3 Check-ins</div>
+                    </div>
+                </div>
+                
+                <h3>Attendance by Day</h3>
+                <div style="background: white; padding: 20px; border-radius: 10px;">
+                    <canvas id="attendanceChart" width="400" height="200"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+    // Initialize Supabase
+    const SUPABASE_URL = 'https://hlmdlrfqhcttpqhlnhlh.supabase.co';
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhsbWRscmZxaGN0dHBxaGxuaGxoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjA3MDMyNzEsImV4cCI6MjA3NjI3OTI3MX0.USnlr4Q-8Aad1a_R2_K-wXzWaH8nfy-CQFaEOuP-MHI';
+    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    // Simple admin credentials
+    const ADMIN_USERNAME = "admin";
+    const ADMIN_PASSWORD = "wedding2023";
+
+    // Global variables
+    let guests = [];
+    let attendance = [];
+    let currentScanDay = 'day1';
+    let videoStream = null;
+    let scanActive = false;
+    let canvasElement = null;
+    let canvasContext = null;
+    let lastScanTime = 0;
+    const SCAN_COOLDOWN = 3000;
+
+    // FIXED: Check if user is already logged in
+    function checkExistingLogin() {
+        const savedLogin = localStorage.getItem('weddingAdminLoggedIn');
+        
+        console.log("Checking login status:", savedLogin); // Debug log
+        
+        if (savedLogin === 'true') {
+            // User is logged in - show admin panel
+            document.getElementById('loginSection').style.display = 'none';
+            document.getElementById('adminDashboard').style.display = 'block';
+            document.getElementById('realtimeIndicator').style.display = 'block';
+            
+            initDaySelection();
+            loadDashboardData();
+            setupRealtimeSubscription();
+        } else {
+            // User is NOT logged in - show login page
+            document.getElementById('loginSection').style.display = 'block';
+            document.getElementById('adminDashboard').style.display = 'none';
+            document.getElementById('realtimeIndicator').style.display = 'none';
+        }
+    }
+
+    // Initialize when page loads
+    document.addEventListener('DOMContentLoaded', function() {
+        console.log("Page loaded, checking login..."); // Debug log
+        checkExistingLogin();
+    });
+
+    // Initialize day selection
+    function initDaySelection() {
+        const dayOptions = document.querySelectorAll('.day-option');
+        dayOptions.forEach(option => {
+            option.addEventListener('click', function() {
+                dayOptions.forEach(opt => opt.classList.remove('selected'));
+                this.classList.add('selected');
+                const radio = this.querySelector('input[type="radio"]');
+                radio.checked = true;
+                currentScanDay = radio.value;
+                updateDayDisplay();
+            });
+        });
+    }
+
+    // Update day display text
+    function updateDayDisplay() {
+        const dayDisplay = document.getElementById('currentDayDisplay');
+        let dayText = '';
+        switch(currentScanDay) {
+            case 'day1': dayText = 'Day 1 - Welcome Dinner'; break;
+            case 'day2': dayText = 'Day 2 - Wedding Day'; break;
+            case 'day3': dayText = 'Day 3 - Farewell Brunch'; break;
+        }
+        dayDisplay.textContent = `Currently Scanning: ${dayText}`;
+    }
+
+    // Hide all scanner results
+    function hideAllScannerResults() {
+        document.getElementById('scannerSuccess').style.display = 'none';
+        document.getElementById('scannerWarning').style.display = 'none';
+        document.getElementById('scannerError').style.display = 'none';
+    }
+
+    // Show scanner result
+    function showScannerResult(type, message) {
+        hideAllScannerResults();
+        
+        switch(type) {
+            case 'success':
+                document.getElementById('successInfo').innerHTML = message;
+                document.getElementById('scannerSuccess').style.display = 'block';
+                break;
+            case 'warning':
+                document.getElementById('warningInfo').innerHTML = message;
+                document.getElementById('scannerWarning').style.display = 'block';
+                break;
+            case 'error':
+                document.getElementById('errorInfo').textContent = message;
+                document.getElementById('scannerError').style.display = 'block';
+                break;
+        }
+    }
+
+    // Cooldown timer display
+    function startCooldownTimer() {
+        const indicator = document.getElementById('cooldownIndicator');
+        const timer = document.getElementById('cooldownTimer');
+        
+        indicator.style.display = 'block';
+        indicator.classList.add('cooldown-active');
+        
+        let seconds = 3;
+        const countdown = setInterval(() => {
+            seconds--;
+            timer.textContent = seconds;
+            
+            if (seconds <= 0) {
+                clearInterval(countdown);
+                indicator.style.display = 'none';
+                indicator.classList.remove('cooldown-active');
+            }
+        }, 1000);
+    }
+
+    // Initialize scanner
+    function initScanner() {
+        const video = document.getElementById("qr-video");
+        canvasElement = document.getElementById("qr-canvas");
+        canvasContext = canvasElement.getContext("2d");
+        
+        hideAllScannerResults();
+        
+        const constraints = {
+            video: { 
+                facingMode: "environment",
+                width: { ideal: 1280 },
+                height: { ideal: 720 }
+            } 
+        };
+        
+        navigator.mediaDevices.getUserMedia(constraints)
+        .then(function(stream) {
+            videoStream = stream;
+            video.srcObject = stream;
+            video.setAttribute("playsinline", true);
+            video.play();
+            scanActive = true;
+            
+            video.onplaying = () => {
+                requestAnimationFrame(scanQRCode);
+            };
+        })
+        .catch(function(err) {
+            console.error("Error accessing camera: ", err);
+            showScannerResult('error', "Cannot access camera. Please check permissions.");
+        });
+    }
+
+    // Stop scanner
+    function stopScanner() {
+        scanActive = false;
+        
+        if (videoStream) {
+            videoStream.getTracks().forEach(track => track.stop());
+            videoStream = null;
+        }
+        
+        const video = document.getElementById("qr-video");
+        if (video) {
+            video.srcObject = null;
+        }
+        
+        clearScannerBox();
+        hideAllScannerResults();
+    }
+
+    // Scan for QR codes with cooldown protection
+    function scanQRCode() {
+        if (!scanActive) return;
+        
+        const video = document.getElementById("qr-video");
+        
+        if (video.readyState === video.HAVE_ENOUGH_DATA && video.videoWidth > 0 && video.videoHeight > 0) {
+            canvasElement.height = video.videoHeight;
+            canvasElement.width = video.videoWidth;
+            
+            canvasContext.drawImage(video, 0, 0, canvasElement.width, canvasElement.height);
+            const imageData = canvasContext.getImageData(0, 0, canvasElement.width, canvasElement.height);
+            
+            try {
+                const code = jsQR(imageData.data, imageData.width, imageData.height, {
+                    inversionAttempts: "dontInvert",
+                });
+                
+                if (code) {
+                    const now = Date.now();
+                    if (now - lastScanTime >= SCAN_COOLDOWN) {
+                        handleScanResult(code.data);
+                        drawScannerBox(code.location);
+                        setTimeout(() => {
+                            if (scanActive) {
+                                requestAnimationFrame(scanQRCode);
+                            }
+                        }, 1000);
+                        return;
+                    } else {
+                        clearScannerBox();
+                    }
+                } else {
+                    clearScannerBox();
+                }
+            } catch (e) {
+                console.error("QR scanning error:", e);
+            }
+        }
+        
+        if (scanActive) {
+            requestAnimationFrame(scanQRCode);
+        }
+    }
+
+    // Draw box around detected QR code
+    function drawScannerBox(location) {
+        if (!canvasElement || !canvasContext) return;
+        
+        canvasContext.clearRect(0, 0, canvasElement.width, canvasElement.height);
+        
+        canvasContext.strokeStyle = "#00FF00";
+        canvasContext.lineWidth = 4;
+        canvasContext.beginPath();
+        canvasContext.moveTo(location.topLeftCorner.x, location.topLeftCorner.y);
+        canvasContext.lineTo(location.topRightCorner.x, location.topRightCorner.y);
+        canvasContext.lineTo(location.bottomRightCorner.x, location.bottomRightCorner.y);
+        canvasContext.lineTo(location.bottomLeftCorner.x, location.bottomLeftCorner.y);
+        canvasContext.lineTo(location.topLeftCorner.x, location.topLeftCorner.y);
+        canvasContext.stroke();
+    }
+
+    function clearScannerBox() {
+        if (canvasElement && canvasContext) {
+            canvasContext.clearRect(0, 0, canvasElement.width, canvasElement.height);
+        }
+    }
+
+    // Handle scan results with Supabase
+    async function handleScanResult(result) {
+        const now = Date.now();
+        
+        // Check cooldown
+        if (now - lastScanTime < SCAN_COOLDOWN) {
+            console.log("Scan cooldown active, ignoring scan...");
+            return;
+        }
+        
+        const rsvpId = result.trim();
+        console.log("Scanned QR code:", rsvpId, "for day:", currentScanDay);
+        
+        // Set cooldown
+        lastScanTime = now;
+        startCooldownTimer();
+        
+        try {
+            // Find guest in Supabase
+            const { data: guestData, error: guestError } = await supabase
+                .from('guests')
+                .select('*')
+                .eq('rsvp_id', rsvpId)
+                .single();
+
+            if (guestError || !guestData) {
+                showScannerResult('error', 'Invalid QR code! Guest not found in database.');
+                return;
+            }
+
+            const guest = guestData;
+            
+            // Check if guest is attending the selected day
+            if (!guest.days_attending || !guest.days_attending.includes(currentScanDay)) {
+                showScannerResult('error', `${guest.first_name} ${guest.last_name} is not attending this event day.`);
+                return;
+            }
+            
+            // Check if already checked in for this specific day
+            const { data: existingAttendance, error: attendanceError } = await supabase
+                .from('attendance')
+                .select('*')
+                .eq('rsvp_id', rsvpId)
+                .eq('day', currentScanDay);
+
+            if (attendanceError) {
+                console.error('Error checking attendance:', attendanceError);
+                showScannerResult('error', 'Error checking attendance records.');
+                return;
+            }
+
+            if (existingAttendance && existingAttendance.length > 0) {
+                // Already checked in for this day
+                let dayName = '';
+                switch(currentScanDay) {
+                    case 'day1': dayName = 'Welcome Dinner'; break;
+                    case 'day2': dayName = 'Wedding Day'; break;
+                    case 'day3': dayName = 'Farewell Brunch'; break;
+                }
+                
+                showScannerResult('warning', 
+                    `<strong>${guest.first_name} ${guest.last_name}</strong><br>
+                     Already checked in for <strong>${dayName}</strong><br>
+                     Previous check-in: ${new Date(existingAttendance[0].check_in_time).toLocaleTimeString()}`
+                );
+            } else {
+                // Record attendance for this specific day
+                const { data: newAttendance, error: insertError } = await supabase
+                    .from('attendance')
+                    .insert([
+                        {
+                            guest_name: `${guest.first_name} ${guest.last_name}`,
+                            rsvp_id: rsvpId,
+                            day: currentScanDay,
+                            staff_member: 'Admin',
+                            check_in_time: new Date().toISOString()
+                        }
+                    ])
+                    .select();
+
+                if (insertError) {
+                    console.error('Error saving attendance:', insertError);
+                    showScannerResult('error', 'Error saving attendance record!');
+                    return;
+                }
+
+                // Update guest's checked_in_days array
+                const updatedCheckedInDays = guest.checked_in_days || [];
+                if (!updatedCheckedInDays.includes(currentScanDay)) {
+                    updatedCheckedInDays.push(currentScanDay);
+                    
+                    const { error: updateError } = await supabase
+                        .from('guests')
+                        .update({ checked_in_days: updatedCheckedInDays })
+                        .eq('rsvp_id', rsvpId);
+
+                    if (updateError) {
+                        console.error('Error updating guest record:', updateError);
+                    }
+                }
+                
+                // Show success message
+                let dayName = '';
+                switch(currentScanDay) {
+                    case 'day1': dayName = 'Welcome Dinner'; break;
+                    case 'day2': dayName = 'Wedding Day'; break;
+                    case 'day3': dayName = 'Farewell Brunch'; break;
+                }
+                
+                showScannerResult('success', 
+                    `<strong>${guest.first_name} ${guest.last_name}</strong><br>
+                     Successfully checked in for <strong>${dayName}</strong><br>
+                     Time: ${new Date().toLocaleTimeString()}`
+                );
+                
+                // IMMEDIATELY update the dashboard and guest list
+                await loadDashboardData();
+            }
+        } catch (error) {
+            console.error('Error in scan handling:', error);
+            showScannerResult('error', 'An unexpected error occurred.');
+        }
+        
+        setTimeout(() => {
+            hideAllScannerResults();
+        }, 5000);
+    }
+
+    // Simple login functionality
+    document.getElementById('adminLoginForm').addEventListener('submit', async function(e) {
+        e.preventDefault();
+        
+        const username = document.getElementById('username').value;
+        const password = document.getElementById('password').value;
+        
+        console.log("Login attempt:", username); // Debug log
+        
+        // Simple authentication
+        if (username === ADMIN_USERNAME && password === ADMIN_PASSWORD) {
+            // Save login state to localStorage
+            localStorage.setItem('weddingAdminLoggedIn', 'true');
+            
+            document.getElementById('loginSection').style.display = 'none';
+            document.getElementById('adminDashboard').style.display = 'block';
+            document.getElementById('realtimeIndicator').style.display = 'block';
+            
+            initDaySelection();
+            await loadDashboardData();
+            setupRealtimeSubscription();
+        } else {
+            alert('Invalid credentials! Use: admin / wedding2023');
+        }
+    });
+
+    // Tab functionality
+    function openTab(tabName) {
+        const tabContents = document.getElementsByClassName('tab-content');
+        for (let i = 0; i < tabContents.length; i++) {
+            tabContents[i].classList.remove('active');
+        }
+        
+        const tabs = document.getElementsByClassName('tab');
+        for (let i = 0; i < tabs.length; i++) {
+            tabs[i].classList.remove('active');
+        }
+        
+        document.getElementById(tabName).classList.add('active');
+        event.currentTarget.classList.add('active');
+        
+        if (tabName !== 'scanner') {
+            stopScanner();
+        }
+    }
+
+    // Setup real-time subscription
+    function setupRealtimeSubscription() {
+        try {
+            // Subscribe to attendance changes
+            const attendanceSubscription = supabase
+                .channel('attendance-changes')
+                .on('postgres_changes', 
+                    { event: '*', schema: 'public', table: 'attendance' },
+                    (payload) => {
+                        console.log('Attendance change:', payload);
+                        loadDashboardData();
+                    }
+                )
+                .subscribe((status) => {
+                    console.log('Attendance subscription status:', status);
+                    updateRealtimeIndicator(status);
+                });
+
+            // Subscribe to guest changes
+            const guestSubscription = supabase
+                .channel('guest-changes')
+                .on('postgres_changes', 
+                    { event: '*', schema: 'public', table: 'guests' },
+                    (payload) => {
+                        console.log('Guest change:', payload);
+                        loadDashboardData();
+                    }
+                )
+                .subscribe((status) => {
+                    console.log('Guest subscription status:', status);
+                    updateRealtimeIndicator(status);
+                });
+        } catch (error) {
+            console.error('Real-time subscription error:', error);
+            document.getElementById('realtimeIndicator').textContent = '🔴 Connection Error';
+            document.getElementById('realtimeIndicator').classList.add('offline');
+        }
+    }
+
+    // Update real-time connection indicator
+    function updateRealtimeIndicator(status) {
+        const indicator = document.getElementById('realtimeIndicator');
+        if (status === 'SUBSCRIBED') {
+            indicator.textContent = '🟢 Live';
+            indicator.classList.remove('offline');
+        } else {
+            indicator.textContent = '🔴 Offline';
+            indicator.classList.add('offline');
+        }
+    }
+
+    // Dashboard data loading
+    async function loadDashboardData() {
+        try {
+            // Load guests
+            const { data: guestsData, error: guestsError } = await supabase
+                .from('guests')
+                .select('*')
+                .order('created_at', { ascending: false });
+
+            if (guestsError) throw guestsError;
+            guests = guestsData || [];
+
+            // Load attendance
+            const { data: attendanceData, error: attendanceError } = await supabase
+                .from('attendance')
+                .select('*')
+                .order('check_in_time', { ascending: false });
+
+            if (attendanceError) throw attendanceError;
+            attendance = attendanceData || [];
+
+            // Update statistics
+            document.getElementById('totalGuests').textContent = guests.length;
+            
+            const day1Count = attendance.filter(a => a.day === 'day1').length;
+            const day2Count = attendance.filter(a => a.day === 'day2').length;
+            const day3Count = attendance.filter(a => a.day === 'day3').length;
+            
+            document.getElementById('day1Guests').textContent = day1Count;
+            document.getElementById('day2Guests').textContent = day2Count;
+            document.getElementById('day3Guests').textContent = day3Count;
+            
+            document.getElementById('totalCheckedIn').textContent = attendance.length;
+            
+            const day1Checked = attendance.filter(a => a.day === 'day1').length;
+            const day2Checked = attendance.filter(a => a.day === 'day2').length;
+            const day3Checked = attendance.filter(a => a.day === 'day3').length;
+            
+            document.getElementById('day1CheckedIn').textContent = day1Checked;
+            document.getElementById('day2CheckedIn').textContent = day2Checked;
+            document.getElementById('day3CheckedIn').textContent = day3Checked;
+            
+            loadGuestsTable();
+            loadAttendanceTable();
+            loadAttendanceChart();
+            
+        } catch (error) {
+            console.error('Error loading dashboard data:', error);
+        }
+    }
+
+    function loadGuestsTable() {
+        const tbody = document.getElementById('guestsTableBody');
+        tbody.innerHTML = '';
+        
+        guests.forEach(guest => {
+            const day1Checked = guest.checked_in_days && guest.checked_in_days.includes('day1') ? '✓' : '';
+            const day2Checked = guest.checked_in_days && guest.checked_in_days.includes('day2') ? '✓' : '';
+            const day3Checked = guest.checked_in_days && guest.checked_in_days.includes('day3') ? '✓' : '';
+            
+            const additionalGuestsCount = guest.guests ? guest.guests.length : 0;
+            
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td>${guest.first_name} ${guest.last_name}</td>
+                <td>${guest.email}</td>
+                <td>${guest.phone || 'N/A'}</td>
+                <td>${guest.days_attending ? guest.days_attending.join(', ') : ''}</td>
+                <td>${additionalGuestsCount}</td>
+                <td>${day1Checked}</td>
+                <td>${day2Checked}</td>
+                <td>${day3Checked}</td>
+            `;
+            tbody.appendChild(row);
+        });
+    }
+
+    function loadAttendanceTable() {
+        const tbody = document.getElementById('attendanceTableBody');
+        tbody.innerHTML = '';
+        
+        attendance.forEach(record => {
+            let dayName = '';
+            switch(record.day) {
+                case 'day1': dayName = 'Day 1 - Welcome Dinner'; break;
+                case 'day2': dayName = 'Day 2 - Wedding Day'; break;
+                case 'day3': dayName = 'Day 3 - Farewell Brunch'; break;
+            }
+            
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td>${record.guest_name}</td>
+                <td>${record.rsvp_id}</td>
+                <td>${dayName}</td>
+                <td>${new Date(record.check_in_time).toLocaleString()}</td>
+                <td>${record.staff_member || 'Admin'}</td>
+            `;
+            tbody.appendChild(row);
+        });
+    }
+
+    function loadAttendanceChart() {
+        const ctx = document.getElementById('attendanceChart');
+        if (!ctx) return;
+        
+        // Clear existing chart
+        if (ctx.chart) {
+            ctx.chart.destroy();
+        }
+        
+        const day1Expected = guests.filter(g => g.days_attending && g.days_attending.includes('day1')).length;
+        const day2Expected = guests.filter(g => g.days_attending && g.days_attending.includes('day2')).length;
+        const day3Expected = guests.filter(g => g.days_attending && g.days_attending.includes('day3')).length;
+        
+        const day1Actual = attendance.filter(a => a.day === 'day1').length;
+        const day2Actual = attendance.filter(a => a.day === 'day2').length;
+        const day3Actual = attendance.filter(a => a.day === 'day3').length;
+        
+        ctx.chart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: ['Day 1', 'Day 2', 'Day 3'],
+                datasets: [
+                    {
+                        label: 'Expected',
+                        data: [day1Expected, day2Expected, day3Expected],
+                        backgroundColor: 'rgba(212, 175, 55, 0.7)'
+                    },
+                    {
+                        label: 'Actual',
+                        data: [day1Actual, day2Actual, day3Actual],
+                        backgroundColor: 'rgba(40, 167, 69, 0.7)'
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+    }
+
+    // Export functionality
+    async function exportGuests() {
+        try {
+            const { data: guestsData, error } = await supabase
+                .from('guests')
+                .select('*')
+                .order('created_at', { ascending: false });
+
+            if (error) throw error;
+
+            let csv = 'Name,Email,Phone,Days Attending,Additional Guests,Additional Guest Names,Day 1 Checked,Day 2 Checked,Day 3 Checked\n';
+            
+            guestsData.forEach(guest => {
+                const additionalGuestNames = guest.guests ? 
+                    guest.guests.map(g => `${g.firstName} ${g.lastName}`).join('; ') : '';
+                const day1Checked = guest.checked_in_days && guest.checked_in_days.includes('day1') ? 'Yes' : 'No';
+                const day2Checked = guest.checked_in_days && guest.checked_in_days.includes('day2') ? 'Yes' : 'No';
+                const day3Checked = guest.checked_in_days && guest.checked_in_days.includes('day3') ? 'Yes' : 'No';
+                
+                csv += `"${guest.first_name} ${guest.last_name}",${guest.email},${guest.phone || ''},"${guest.days_attending ? guest.days_attending.join(', ') : ''}",${guest.guests ? guest.guests.length : 0},"${additionalGuestNames}",${day1Checked},${day2Checked},${day3Checked}\n`;
+            });
+            
+            downloadCSV(csv, 'wedding_guests.csv');
+        } catch (error) {
+            console.error('Error exporting guests:', error);
+            alert('Error exporting guest data');
+        }
+    }
+
+    async function exportAttendance() {
+        try {
+            const { data: attendanceData, error } = await supabase
+                .from('attendance')
+                .select('*')
+                .order('check_in_time', { ascending: false });
+
+            if (error) throw error;
+
+            let csv = 'Guest Name,RSVP ID,Event Day,Check-in Time,Staff Member\n';
+            
+            attendanceData.forEach(record => {
+                let dayName = '';
+                switch(record.day) {
+                    case 'day1': dayName = 'Day 1 - Welcome Dinner'; break;
+                    case 'day2': dayName = 'Day 2 - Wedding Day'; break;
+                    case 'day3': dayName = 'Day 3 - Farewell Brunch'; break;
+                }
+                
+                csv += `"${record.guest_name}",${record.rsvp_id},"${dayName}","${new Date(record.check_in_time).toLocaleString()}","${record.staff_member || 'Admin'}"\n`;
+            });
+            
+            downloadCSV(csv, 'wedding_attendance.csv');
+        } catch (error) {
+            console.error('Error exporting attendance:', error);
+            alert('Error exporting attendance data');
+        }
+    }
+
+    function downloadCSV(csv, filename) {
+        const blob = new Blob([csv], { type: 'text/csv' });
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.setAttribute('hidden', '');
+        a.setAttribute('href', url);
+        a.setAttribute('download', filename);
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+    }
+
+    // Logout functionality
+    function logout() {
+        // Clear login state
+        localStorage.removeItem('weddingAdminLoggedIn');
+        
+        document.getElementById('adminDashboard').style.display = 'none';
+        document.getElementById('loginSection').style.display = 'block';
+        document.getElementById('realtimeIndicator').style.display = 'none';
+        document.getElementById('adminLoginForm').reset();
+        
+        stopScanner();
+    }
+</script>
+</body>
+</html>
