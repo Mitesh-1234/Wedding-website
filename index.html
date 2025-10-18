@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Wedding Celebration | John & Sarah</title>
+    <title>Wedding Celebration | Ronak & Natasha</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Montserrat:wght@300;400;500&display=swap" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
@@ -86,11 +86,11 @@
         }
         
         .logo {
-            font-family: 'Playfair Display', serif;
-            fontSize: 24px;
-            color: var(--primary);
-            text-decoration: none;
-        }
+        font-family: 'Playfair Display', serif;
+        font-size: 24px; /* Fixed property name */
+        color: var(--primary);
+        text-decoration: none;
+}
         
         .nav-links {
             display: flex;
@@ -111,7 +111,81 @@
         .nav-links a:hover {
             color: var(--primary);
         }
+
+        /* Mobile Navigation */
+.hamburger {
+    display: none;
+    background: none;
+    border: none;
+    font-size: 24px;
+    color: var(--dark);
+    cursor: pointer;
+    padding: 5px;
+}
+
+@media (max-width: 768px) {
+    .hamburger {
+        display: block;
+        position: absolute;
+        top: 20px;
+        right: 20px;
+    }
+    
+    .nav-links {
+        position: fixed;
+        top: 70px;
+        left: 0;
+        width: 100%;
+        background-color: white;
+        flex-direction: column;
+        align-items: center;
+        padding: 20px 0;
+        box-shadow: 0 5px 10px rgba(0,0,0,0.1);
+        transform: translateY(-150%);
+        transition: transform 0.3s ease-in-out;
+        z-index: 1000;
+    }
+    
+    .nav-links.active {
+        transform: translateY(0);
+    }
+    
+    .nav-links li {
+        margin: 15px 0;
+    }
+    
+    .navbar {
+        position: relative;
+    }
+}
         
+@media (max-width: 480px) {
+    .hero h1 {
+        font-size: 2rem;
+    }
+    
+    .hero p {
+        font-size: 1.2rem;
+    }
+    
+    .save-date {
+        font-size: 1rem;
+    }
+    
+    .btn {
+        padding: 10px 25px;
+        font-size: 16px;
+    }
+    
+    .rsvp-form {
+        padding: 20px;
+    }
+    
+    .days-attending {
+        flex-direction: column;
+        gap: 10px;
+    }
+}
         /* Hero Section */
         .hero {
             height: 100vh;
@@ -119,7 +193,7 @@
             align-items: center;
             justify-content: center;
             text-align: center;
-            background: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)), url('https://images.unsplash.com/photo-1519225421980-715cb0215aed?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80') no-repeat center center/cover;
+            background: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6));
             color: var(--light);
             position: relative;
         }
@@ -148,29 +222,30 @@
         
         /* Slideshow */
         .slideshow {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: -1;
-        }
-        
-        .slide {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            opacity: 0;
-            transition: opacity 1s ease-in-out;
-            background-size: cover;
-            background-position: center;
-        }
-        
-        .slide.active {
-            opacity: 1;
-        }
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: -1;
+}
+
+.slide {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    transition: opacity 1s ease-in-out;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat; /* Add this */
+}
+
+.slide.active {
+    opacity: 1;
+}
         
         /* Our Story */
         .our-story {
@@ -447,14 +522,17 @@
     <header>
         <div class="container">
             <nav class="navbar">
-                <a href="#" class="logo">John & Sarah</a>
-                <ul class="nav-links">
-                    <li><a href="#our-story">Our Story</a></li>
-                    <li><a href="#event-schedule">Event Schedule</a></li>
-                    <li><a href="#rsvp">RSVP</a></li>
-                    <li><a href="#contact">Contact</a></li>
-                </ul>
-            </nav>
+    <a href="#" class="logo">Ronak & Natasha</a>
+    <button class="hamburger" id="hamburger">
+        <i class="fas fa-bars"></i>
+    </button>
+    <ul class="nav-links" id="nav-links">
+        <li><a href="#our-story">Our Story</a></li>
+        <li><a href="#event-schedule">Event Schedule</a></li>
+        <li><a href="#rsvp">RSVP</a></li>
+        <li><a href="#contact">Contact</a></li>
+    </ul>
+</nav>
         </div>
     </header>
 
@@ -462,13 +540,13 @@
     <section class="hero">
         <div class="slideshow">
             <div class="slide active" style="background-image: url('https://images.unsplash.com/photo-1519225421980-715cb0215aed?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80');"></div>
-            <div class="slide" style="background-image: url('https://images.unsplash.com/photo-1465495976277-4387d4b0e4a6?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80');"></div>
+            <div class="slide" style="background-image: url('https://image2url.com/images/1760763045158-33a4b5f0-e04d-4243-86a7-a91e1e042be9.webp');"></div>
             <div class="slide" style="background-image: url('https://images.unsplash.com/photo-1511795409834-ef04bbd61622?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80');"></div>
         </div>
         <div class="hero-content">
-            <h1>John & Sarah</h1>
+            <h1>Ronak & Natasha</h1>
             <p>We're getting married!</p>
-            <p class="save-date">Save the Date: October 15, 2023</p>
+            <p class="save-date">Save the Date: May 2, 2026</p>
             <a href="#rsvp" class="btn">RSVP Now</a>
         </div>
     </section>
@@ -479,12 +557,12 @@
             <h2 class="section-title">Our Story</h2>
             <div class="story-content">
                 <div class="story-text">
-                    <p>John and Sarah first met in college during a photography class. Sarah was struggling with her camera settings, and John, being the photography enthusiast he is, offered to help. That simple act of kindness sparked a connection that would grow into a beautiful love story.</p>
-                    <p>They dated for five years, creating countless memories together - from hiking adventures in the mountains to cozy movie nights at home. John proposed during a sunset picnic at their favorite spot overlooking the city, with a ring that had been in his family for generations.</p>
+                    <p>Ronak and Natasha first met in college during a photography class. Natasha was struggling with her camera settings, and Ronak, being the photography enthusiast he is, offered to help. That simple act of kindness sparked a connection that would grow into a beautiful love story.</p>
+                    <p>They dated for five years, creating countless memories together - from hiking adventures in the mountains to cozy movie nights at home. Ronak proposed during a sunset picnic at their favorite spot overlooking the city, with a ring that had been in his family for generations.</p>
                     <p>Now, they're excited to begin the next chapter of their lives together and can't wait to share their special day with all of you.</p>
                 </div>
                 <div class="story-image">
-                    <img src="https://images.unsplash.com/photo-1537633552985-df8f9131a5d7?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80" alt="John and Sarah">
+                    <img src="shiv.webp" alt="Ronak and Natasha">
                 </div>
             </div>
         </div>
@@ -629,7 +707,7 @@
                     <ul class="contact-info">
                         <li><i class="fas fa-map-marker-alt"></i> 123 Wedding Lane, New York, NY 10001</li>
                         <li><i class="fas fa-phone"></i> (555) 123-4567</li>
-                        <li><i class="fas fa-envelope"></i> johnandsarah2023@example.com</li>
+                        <li><i class="fas fa-envelope"></i> RonakandNatasha2023@example.com</li>
                     </ul>
                 </div>
                 <div class="footer-section">
@@ -651,7 +729,7 @@
                 </div>
             </div>
             <div class="copyright">
-                <p>&copy; 2023 John & Sarah's Wedding. All rights reserved.</p>
+                <p> 2026 Ronak & Natasha's Wedding</p>
             </div>
         </div>
     </footer>
@@ -681,6 +759,37 @@
     
     setInterval(nextSlide, 5000);
     
+// Mobile navigation toggle
+const hamburger = document.getElementById('hamburger');
+const navLinks = document.getElementById('nav-links');
+
+hamburger.addEventListener('click', () => {
+    navLinks.classList.toggle('active');
+    // Change hamburger icon
+    const icon = hamburger.querySelector('i');
+    if (navLinks.classList.contains('active')) {
+        icon.className = 'fas fa-times';
+    } else {
+        icon.className = 'fas fa-bars';
+    }
+});
+
+// Close mobile menu when clicking on a link
+document.querySelectorAll('.nav-links a').forEach(link => {
+    link.addEventListener('click', () => {
+        navLinks.classList.remove('active');
+        hamburger.querySelector('i').className = 'fas fa-bars';
+    });
+});
+
+// Close mobile menu when clicking outside
+document.addEventListener('click', (e) => {
+    if (!hamburger.contains(e.target) && !navLinks.contains(e.target)) {
+        navLinks.classList.remove('active');
+        hamburger.querySelector('i').className = 'fas fa-bars';
+    }
+});
+
     // Tab functionality
     const tabBtns = document.querySelectorAll('.tab-btn');
     const tabContents = document.querySelectorAll('.tab-content');
@@ -859,7 +968,7 @@
                     'Authorization': `Bearer ${RESEND_API_KEY}`
                 },
                 body: JSON.stringify({
-                    from: 'John & Sarah <wedding@resend.dev>', // You can change this to your domain
+                    from: 'Ronak & Natasha <wedding@resend.dev>', // You can change this to your domain
                     to: [guestData.email],
                     subject: `🎉 Wedding RSVP Confirmation - ${guestData.firstName} ${guestData.lastName}`,
                     html: emailHtml
@@ -997,7 +1106,7 @@
         <body>
             <div class="email-container">
                 <div class="header">
-                    <h1>John & Sarah</h1>
+                    <h1>Ronak & Natasha</h1>
                     <h2>We're Getting Married!</h2>
                 </div>
                 
@@ -1054,14 +1163,14 @@
                     <p>We are counting down the days until we can celebrate with you!</p>
                     
                     <p>With love,<br>
-                    <strong>John & Sarah</strong></p>
+                    <strong>Ronak & Natasha</strong></p>
                 </div>
                 
                 <div class="footer">
-                    <p>John & Sarah's Wedding Celebration</p>
+                    <p>Ronak & Natasha's Wedding Celebration</p>
                     <p>October 13-15, 2023</p>
                     <div class="contact-info">
-                        Email: johnandsarah2023@example.com<br>
+                        Email: RonakandNatasha2023@example.com<br>
                         Phone: (555) 123-4567
                     </div>
                 </div>
