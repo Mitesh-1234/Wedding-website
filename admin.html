@@ -351,19 +351,31 @@
     position: sticky;
     top: 0;
     z-index: 1000;
-    justify-content: space-between;
+    justify-content: center;
     align-items: center;
     height: 60px; /* Add fixed height */
     box-sizing: border-box;
+    position: relative;
 }
         
-        .hamburger {
-            background: none;
-            border: none;
-            color: var(--light);
-            font-size: 1.5rem;
-            cursor: pointer;
-        }
+        .mobile-header h2 {
+    position: absolute; /* Add this */
+    left: 50%; /* Add this */
+    transform: translateX(-50%); /* Add this */
+    margin: 0; /* Add this */
+    text-align: center; /* Add this */
+}
+
+.hamburger {
+    background: none;
+    border: none;
+    color: var(--light);
+    font-size: 1.5rem;
+    cursor: pointer;
+    position: absolute; /* Add this */
+    left: 20px; /* Add this */
+    z-index: 1001; /* Add this */
+}
         
         @media (max-width: 768px) {
             .admin-container {
@@ -528,7 +540,6 @@
                 <i class="fas fa-bars"></i>
             </button>
             <h2>Admin Panel</h2>
-            <button class="btn logout-btn" onclick="logout()">Logout</button>
         </div>
 
         <!-- Overlay for mobile menu -->
@@ -564,6 +575,11 @@
                     <li><a href="#" onclick="openTab('guests')"><i class="fas fa-users"></i> Guest List</a></li>
                     <li><a href="#" onclick="openTab('attendance')"><i class="fas fa-clipboard-check"></i> Attendance</a></li>
                     <li><a href="#" onclick="openTab('reports')"><i class="fas fa-chart-bar"></i> Reports</a></li>
+                    <li class="logout-sidebar">
+            <a href="#" onclick="logout()" style="background: var(--danger); margin-top: 20px;">
+                <i class="fas fa-sign-out-alt"></i> Logout
+            </a>
+        </li>
                 </ul>
             </aside>
 
