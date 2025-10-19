@@ -66,6 +66,111 @@
             box-shadow: 0 10px 20px rgba(0,0,0,0.1);
         }
         
+        /* Countdown Timer Styles */
+.countdown-container {
+    text-align: center;
+    margin: 30px 0;
+    padding: 20px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 15px;
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0);
+}
+
+.countdown-container h3 {
+    color: var(--light);
+    margin-bottom: 20px;
+    font-family: 'Playfair Display', serif;
+    font-size: 1.5rem;
+    text-shadow: 2px 2px 4px rgb(0, 0, 0);
+}
+
+.countdown-timer {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    flex-wrap: wrap;
+}
+
+.countdown-item {
+    background: rgba(212, 175, 55, 0.9);
+    padding: 15px 10px;
+    border-radius: 10px;
+    min-width: 80px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    transition: transform 0.3s ease;
+}
+
+.countdown-item:hover {
+    transform: translateY(-5px);
+}
+
+.countdown-number {
+    display: block;
+    font-size: 2rem;
+    font-weight: bold;
+    color: var(--dark);
+    font-family: 'Montserrat', sans-serif;
+    text-shadow: 1px 1px 2px rgba(255, 255, 255, 0.5);
+}
+
+.countdown-label {
+    font-size: 0.9rem;
+    color: var(--dark);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-weight: 600;
+}
+
+/* Mobile responsive for countdown */
+@media (max-width: 768px) {
+    .countdown-timer {
+        gap: 10px;
+    }
+    
+    .countdown-item {
+        min-width: 70px;
+        padding: 12px 8px;
+    }
+    
+    .countdown-number {
+        font-size: 1.5rem;
+    }
+    
+    .countdown-label {
+        font-size: 0.8rem;
+    }
+    
+    .countdown-container h3 {
+        font-size: 1.3rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .countdown-timer {
+        gap: 8px;
+    }
+    
+    .countdown-item {
+        min-width: 60px;
+        padding: 10px 6px;
+    }
+    
+    .countdown-number {
+        font-size: 1.3rem;
+    }
+    
+    .countdown-label {
+        font-size: 0.7rem;
+    }
+    
+    .countdown-container {
+        padding: 15px;
+        margin: 20px 0;
+    }
+}
+
+
         /* Header & Navigation */
         header {
             position: fixed;
@@ -765,19 +870,43 @@
     </header>
 
     <!-- Hero Section -->
-    <section class="hero">
-        <div class="slideshow">
-            <div class="slide active" style="background-image: url('https://images.unsplash.com/photo-1519225421980-715cb0215aed?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80');"></div>
-            <div class="slide" style="background-image: url('https://image2url.com/images/1760763045158-33a4b5f0-e04d-4243-86a7-a91e1e042be9.webp');"></div>
-            <div class="slide" style="background-image: url('https://images.unsplash.com/photo-1511795409834-ef04bbd61622?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80');"></div>
+<section class="hero">
+    <div class="slideshow">
+        <div class="slide active" style="background-image: url('https://images.unsplash.com/photo-1519225421980-715cb0215aed?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80');"></div>
+        <div class="slide" style="background-image: url('https://image2url.com/images/1760763045158-33a4b5f0-e04d-4243-86a7-a91e1e042be9.webp');"></div>
+        <div class="slide" style="background-image: url('https://images.unsplash.com/photo-1511795409834-ef04bbd61622?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80');"></div>
+    </div>
+    <div class="hero-content">
+        <h1>Ronak & Natasha</h1>
+        <p>We're getting married!</p>
+        <p class="save-date">Save the Date: May 2, 2026</p>
+        
+        <!-- Live Countdown Timer -->
+        <div class="countdown-container">
+            <h3>Counting Down to Our Special Day</h3>
+            <div class="countdown-timer">
+                <div class="countdown-item">
+                    <span class="countdown-number" id="days">00</span>
+                    <span class="countdown-label">Days</span>
+                </div>
+                <div class="countdown-item">
+                    <span class="countdown-number" id="hours">00</span>
+                    <span class="countdown-label">Hours</span>
+                </div>
+                <div class="countdown-item">
+                    <span class="countdown-number" id="minutes">00</span>
+                    <span class="countdown-label">Minutes</span>
+                </div>
+                <div class="countdown-item">
+                    <span class="countdown-number" id="seconds">00</span>
+                    <span class="countdown-label">Seconds</span>
+                </div>
+            </div>
         </div>
-        <div class="hero-content">
-            <h1>Ronak & Natasha</h1>
-            <p>We're getting married!</p>
-            <p class="save-date">Save the Date: May 2, 2026</p>
-            <a href="#rsvp" class="btn">RSVP Now</a>
-        </div>
-    </section>
+        
+        <a href="#rsvp" class="btn">RSVP Now</a>
+    </div>
+</section>
 
     <!-- Our Story -->
     <section id="our-story" class="our-story">
@@ -1409,6 +1538,98 @@ Ronak & Natasha's Wedding
             checkRSVPStatus();
             // ... your existing DOMContentLoaded code ...
         });
+
+        // Countdown Timer Function
+function initializeCountdown() {
+    const weddingDate = new Date('2026-05-02T17:00:00'); // May 2, 2026, 5:00 PM
+    
+    function updateCountdown() {
+        const now = new Date();
+        const timeRemaining = weddingDate - now;
+        
+        // If wedding date has passed
+        if (timeRemaining < 0) {
+            const countdownContainer = document.querySelector('.countdown-container');
+            if (countdownContainer) {
+                countdownContainer.innerHTML = `
+                    <h3>🎉 Today's the Day! 🎉</h3>
+                    <p style="color: var(--light); font-size: 1.2rem; margin-top: 10px;">
+                        We're getting married today! See you at the ceremony!
+                    </p>
+                `;
+            }
+            return;
+        }
+        
+        // Calculate time units
+        const days = Math.floor(timeRemaining / (1000 * 60 * 60 * 24));
+        const hours = Math.floor((timeRemaining % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+        const minutes = Math.floor((timeRemaining % (1000 * 60 * 60)) / (1000 * 60));
+        const seconds = Math.floor((timeRemaining % (1000 * 60)) / 1000);
+        
+        // Update countdown display
+        const daysElement = document.getElementById('days');
+        const hoursElement = document.getElementById('hours');
+        const minutesElement = document.getElementById('minutes');
+        const secondsElement = document.getElementById('seconds');
+        
+        if (daysElement) daysElement.textContent = days.toString().padStart(2, '0');
+        if (hoursElement) hoursElement.textContent = hours.toString().padStart(2, '0');
+        if (minutesElement) minutesElement.textContent = minutes.toString().padStart(2, '0');
+        if (secondsElement) secondsElement.textContent = seconds.toString().padStart(2, '0');
+        
+        // Special effects when close to wedding
+        const countdownContainer = document.querySelector('.countdown-container');
+        if (countdownContainer) {
+            if (days === 0) {
+                // Today is the wedding day!
+                countdownContainer.style.background = 'rgba(212, 175, 55, 0.3)';
+                countdownContainer.style.border = '2px solid rgba(255, 255, 255, 0.5)';
+                const title = countdownContainer.querySelector('h3');
+                if (title) title.textContent = '🎉 Today is Our Wedding Day! 🎉';
+            } else if (days <= 7) {
+                // One week to go - add some excitement
+                countdownContainer.style.background = 'rgba(212, 175, 55, 0.2)';
+                countdownContainer.style.border = '2px solid rgba(255, 255, 255, 0.3)';
+            } else if (days <= 30) {
+                // One month to go
+                countdownContainer.style.background = 'rgba(255, 255, 255, 0.15)';
+            }
+        }
+        
+        // Special milestone messages
+        updateMilestoneMessage(days);
+    }
+    
+    function updateMilestoneMessage(days) {
+        const title = document.querySelector('.countdown-container h3');
+        if (!title) return;
+        
+        let message = "Counting Down to Our Special Day";
+        
+        if (days === 365) message = "🎉 One Year to Go!";
+        else if (days === 100) message = "💝 100 Days Until Forever!";
+        else if (days === 30) message = "🌟 One Month Away!";
+        else if (days === 14) message = "✨ Two Weeks to Go!";
+        else if (days === 7) message = "🎊 Next Week! Get Ready!";
+        else if (days === 1) message = "😴 Sleep Well - Tomorrow's the Day!";
+        else if (days === 0) message = "🎉 TODAY'S THE DAY! 🎉";
+        
+        title.textContent = message;
+    }
+    
+    // Initialize immediately
+    updateCountdown();
+    
+    // Update every second
+    setInterval(updateCountdown, 1000);
+}
+
+// Call this function when the page loads
+document.addEventListener('DOMContentLoaded', function() {
+    initializeCountdown();
+    // ... rest of your existing DOMContentLoaded code ...
+});
         
         // Attendance toggle functionality
         document.addEventListener('DOMContentLoaded', function() {
