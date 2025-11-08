@@ -1323,16 +1323,38 @@
             }
         }
 
-        // Save RSVP settings to localStorage
-        function saveRSVPSettings() {
-            RSVP_SETTINGS.enabled = document.getElementById('rsvpToggle').checked;
-            RSVP_SETTINGS.disabledMessage = document.getElementById('rsvpDisabledMessage').value;
-            
-            localStorage.setItem('weddingRSVPSettings', JSON.stringify(RSVP_SETTINGS));
-            updateRSVPStatusDisplay();
-            
-            // Show success message
-            alert('RSVP settings saved successfully!');
+        // FIXED: Save RSVP settings to Supabase for cross-device sync
+        async function saveRSVPSettings() {
+            try {
+                RSVP_SETTINGS.enabled = document.getElementById('rsvpToggle').checked;
+                RSVP_SETTINGS.disabledMessage = document.getElementById('rsvpDisabledMessage').value;
+                
+                // Save to localStorage for immediate effect
+                localStorage.setItem('weddingRSVPSettings', JSON.stringify(RSVP_SETTINGS));
+                
+                // FIXED: Also save to Supabase for cross-device sync
+                const { error } = await supabase
+                    .from('settings')
+                    .upsert({
+                        id: 1,
+                        rsvp_enabled: RSVP_SETTINGS.enabled,
+                        disabled_message: RSVP_SETTINGS.disabledMessage,
+                        updated_at: new Date().toISOString()
+                    });
+
+                if (error) {
+                    console.error('Supabase save error:', error);
+                    // Even if Supabase fails, localStorage will work
+                    alert('Settings saved locally. Supabase sync failed: ' + error.message);
+                } else {
+                    alert('RSVP settings saved successfully! Changes will sync across all devices.');
+                }
+                
+                updateRSVPStatusDisplay();
+            } catch (error) {
+                console.error('Error saving RSVP settings:', error);
+                alert('Error saving RSVP settings: ' + error.message);
+            }
         }
 
         // Update RSVP status display
@@ -1608,29 +1630,34 @@
                 
                 const testQRCode = generateQRCodeImage('TEST-12345');
                 
-                const testData = {
-                    _subject: `🎉 Test - Your Wedding QR Code from ${FORMSPREE_CONFIG.fromName}`,
-                    guest_name: 'Test User',
-                    guest_email: testEmail,
-                    rsvp_id: 'TEST-12345',
-                    qr_code_url: testQRCode,
-                    events_attending: 'Day 1 - Welcome Dinner, Day 2 - Wedding Day',
-                    additional_guests: 2,
-                    message: `This is a test email from your ${FORMSPREE_CONFIG.fromName} admin system. If you receive this, your email setup is working perfectly!`,
-                    _replyto: testEmail
-                };
+                // FIXED: Added _cc parameter to ensure guest gets CC'd
+                const testData = new URLSearchParams();
+                testData.append('_subject', `🎉 Test - Your Wedding QR Code from ${FORMSPREE_CONFIG.fromName}`);
+                testData.append('_replyto', testEmail);
+                testData.append('_cc', testEmail); // FIX: This ensures guest gets CC'd
+                
+                const emailContent = `
+This is a test email from your ${FORMSPREE_CONFIG.fromName} admin system. If you receive this, your email setup is working perfectly!
+
+Test QR Code:
+<img src="${testQRCode}" alt="Test QR Code" width="200" height="200" />
+
+If you can see the QR code above and receive this email in both your inbox and CC, the system is working correctly!
+                `;
+
+                testData.append('message', emailContent);
 
                 const response = await fetch(FORMSPREE_CONFIG.endpoint, {
                     method: 'POST',
-                    headers: { 
-                        'Content-Type': 'application/json',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
                         'Accept': 'application/json'
                     },
-                    body: JSON.stringify(testData)
+                    body: testData
                 });
 
                 if (response.ok) {
-                    showEmailStatus('success', '✅ Test email sent successfully! Check your inbox in 1-2 minutes.');
+                    showEmailStatus('success', '✅ Test email sent successfully! Check your inbox AND CC in 1-2 minutes.');
                     return true;
                 } else {
                     const errorData = await response.json();
@@ -1648,7 +1675,7 @@
             return guests.find(g => g.id === guestId);
         }
 
-        // Send QR Code to Single Guest using Formspree
+        // Send QR Code to Single Guest using Formspree - FIXED CC ISSUE
         async function sendQRCodeToGuest(guestId) {
             console.log('sendQRCodeToGuest called with ID:', guestId);
             
@@ -1678,29 +1705,51 @@
                 
                 console.log('Sending email to:', guest.email);
 
-                const emailData = {
-                    _subject: `🎉 Your Wedding QR Code - ${FORMSPREE_CONFIG.fromName}`,
-                    guest_name: `${guest.first_name} ${guest.last_name}`,
-                    guest_email: guest.email,
-                    rsvp_id: guest.rsvp_id,
-                    qr_code_url: qrCodeUrl,
-                    events_attending: guest.days_attending ? guest.days_attending.join(', ') : 'Not specified',
-                    additional_guests: guest.guests ? guest.guests.length : 0,
-                    message: `Dear ${guest.first_name},\n\nThank you for RSVPing to our wedding! Please save your QR code above for quick check-in at the events.\n\nWe can't wait to celebrate with you!\n\nLove,\nRonak & Natasha`,
-                    _replyto: guest.email
-                };
+                // FIXED: Use URLSearchParams with _cc parameter
+                const formData = new URLSearchParams();
+                
+                formData.append('_subject', `🎉 Your Wedding QR Code - ${FORMSPREE_CONFIG.fromName}`);
+                formData.append('_replyto', guest.email);
+                formData.append('_cc', guest.email); // FIX: This ensures guest gets CC'd
+                
+                const emailContent = `
+Dear ${guest.first_name},
+
+Thank you for RSVPing to our wedding! Please save your QR code below for quick check-in at the events.
+
+YOUR QR CODE:
+<img src="${qrCodeUrl}" alt="Wedding QR Code" width="200" height="200" />
+
+RSVP DETAILS:
+- Name: ${guest.first_name} ${guest.last_name}
+- RSVP ID: ${guest.rsvp_id}
+- Events: ${guest.days_attending ? guest.days_attending.join(', ') : 'Not specified'}
+- Additional Guests: ${guest.guests ? guest.guests.length : 0}
+
+HOW TO USE YOUR QR CODE:
+• Save this email on your phone
+• Show the QR code at the event entrance
+• Digital version is sufficient - no printing needed
+
+We can't wait to celebrate with you!
+
+Love,
+Ronak & Natasha
+                `;
+
+                formData.append('message', emailContent);
 
                 const response = await fetch(FORMSPREE_CONFIG.endpoint, {
                     method: 'POST',
-                    headers: { 
-                        'Content-Type': 'application/json',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
                         'Accept': 'application/json'
                     },
-                    body: JSON.stringify(emailData)
+                    body: formData
                 });
 
                 if (response.ok) {
-                    showEmailStatus('success', `✅ QR code sent to ${guest.email}`);
+                    showEmailStatus('success', `✅ QR code sent to ${guest.email} (with CC)`);
                     await markEmailAsSent(guest.id);
                     return true;
                 } else {
@@ -1762,7 +1811,7 @@
                 await new Promise(resolve => setTimeout(resolve, 1500));
             }
             
-            showEmailStatus('success', `✅ Email sending completed! ${successCount} successful, ${failCount} failed.`);
+            showEmailStatus('success', `✅ Email sending completed! ${successCount} successful, ${failCount} failed. All emails include CC to guests.`);
         }
 
         // Send to guests who haven't received emails yet
