@@ -1323,7 +1323,7 @@
             }
         }
 
-        // FIXED: Save RSVP settings to Supabase for cross-device sync
+        // Save RSVP settings to Supabase for cross-device sync
         async function saveRSVPSettings() {
             try {
                 RSVP_SETTINGS.enabled = document.getElementById('rsvpToggle').checked;
@@ -1332,7 +1332,7 @@
                 // Save to localStorage for immediate effect
                 localStorage.setItem('weddingRSVPSettings', JSON.stringify(RSVP_SETTINGS));
                 
-                // FIXED: Also save to Supabase for cross-device sync
+                // Also save to Supabase for cross-device sync
                 const { error } = await supabase
                     .from('settings')
                     .upsert({
@@ -1581,30 +1581,6 @@
             return emailRegex.test(email);
         }
 
-        function debugGuestEmails() {
-            console.log('=== DEBUG: Guest Email Analysis ===');
-            const guestsWithEmails = guests.filter(g => g.email && g.email.trim() !== '');
-            const guestsWithoutEmails = guests.filter(g => !g.email || g.email.trim() === '');
-            const guestsWithInvalidEmails = guests.filter(g => g.email && g.email.trim() !== '' && !isValidEmail(g.email));
-            
-            console.log(`Total guests: ${guests.length}`);
-            console.log(`Guests with valid emails: ${guestsWithEmails.length}`);
-            console.log(`Guests without emails: ${guestsWithoutEmails.length}`);
-            console.log(`Guests with invalid emails: ${guestsWithInvalidEmails.length}`);
-            
-            console.log('Guests without emails:');
-            guestsWithoutEmails.forEach(guest => {
-                console.log(`- ${guest.first_name} ${guest.last_name}: "${guest.email}"`);
-            });
-            
-            console.log('Guests with invalid emails:');
-            guestsWithInvalidEmails.forEach(guest => {
-                console.log(`- ${guest.first_name} ${guest.last_name}: "${guest.email}"`);
-            });
-            
-            alert(`Email Debug Results:\nTotal Guests: ${guests.length}\nValid Emails: ${guestsWithEmails.length}\nNo Email: ${guestsWithoutEmails.length}\nInvalid Emails: ${guestsWithInvalidEmails.length}\nCheck browser console for details.`);
-        }
-
         // ========== FORMSPREE FUNCTIONS ==========
         // Generate QR Code using external service
         function generateQRCodeImage(rsvpId) {
@@ -1630,11 +1606,10 @@
                 
                 const testQRCode = generateQRCodeImage('TEST-12345');
                 
-                // FIXED: Added _cc parameter to ensure guest gets CC'd
                 const testData = new URLSearchParams();
                 testData.append('_subject', `🎉 Test - Your Wedding QR Code from ${FORMSPREE_CONFIG.fromName}`);
                 testData.append('_replyto', testEmail);
-                testData.append('_cc', testEmail); // FIX: This ensures guest gets CC'd
+                testData.append('_cc', testEmail);
                 
                 const emailContent = `
 This is a test email from your ${FORMSPREE_CONFIG.fromName} admin system. If you receive this, your email setup is working perfectly!
@@ -1670,47 +1645,53 @@ If you can see the QR code above and receive this email in both your inbox and C
             }
         }
 
-        // Helper function to find guest by ID
-        function findGuestById(guestId) {
-            return guests.find(g => g.id === guestId);
-        }
-
-        // Send QR Code to Single Guest using Formspree - FIXED CC ISSUE
+        // Send QR Code to Single Guest using Formspree - FIXED VERSION
         async function sendQRCodeToGuest(guestId) {
             console.log('sendQRCodeToGuest called with ID:', guestId);
             
-            const guest = findGuestById(guestId);
+            const guest = guests.find(g => g.id === guestId);
             if (!guest) {
+                console.error('Guest not found with ID:', guestId);
                 showEmailStatus('error', 'Guest not found!');
                 return false;
             }
             
+            console.log('Found guest:', guest);
+            
             // VALIDATION - Check if email exists and is valid
-            if (!guest.email || guest.email.trim() === '' || !isValidEmail(guest.email)) {
-                showEmailStatus('error', `Invalid or missing email address for ${guest.first_name} ${guest.last_name}`);
+            if (!guest.email || guest.email.trim() === '') {
+                showEmailStatus('error', `No email address for ${guest.first_name} ${guest.last_name}`);
+                return false;
+            }
+            
+            const email = guest.email.trim();
+            
+            if (!isValidEmail(email)) {
+                showEmailStatus('error', `Invalid email format for ${guest.first_name} ${guest.last_name}: ${email}`);
                 return false;
             }
 
             // Check Formspree configuration
-            if (!FORMSPREE_CONFIG.endpoint) {
+            if (!FORMSPREE_CONFIG.endpoint || FORMSPREE_CONFIG.endpoint.trim() === '') {
                 showEmailStatus('error', 'Formspree not configured. Please set up your email settings first.');
                 return false;
             }
 
             try {
-                showEmailStatus('loading', `Sending QR code to ${guest.email}`);
+                showEmailStatus('loading', `Sending QR code to ${email}`);
                 
                 // Generate QR code URL
                 const qrCodeUrl = generateQRCodeImage(guest.rsvp_id);
                 
-                console.log('Sending email to:', guest.email);
+                console.log('Sending email to:', email);
+                console.log('Using Formspree endpoint:', FORMSPREE_CONFIG.endpoint);
 
-                // FIXED: Use URLSearchParams with _cc parameter
+                // Use URLSearchParams with _cc parameter
                 const formData = new URLSearchParams();
                 
                 formData.append('_subject', `🎉 Your Wedding QR Code - ${FORMSPREE_CONFIG.fromName}`);
-                formData.append('_replyto', guest.email);
-                formData.append('_cc', guest.email); // FIX: This ensures guest gets CC'd
+                formData.append('_replyto', email);
+                formData.append('_cc', email);
                 
                 const emailContent = `
 Dear ${guest.first_name},
@@ -1739,6 +1720,7 @@ Ronak & Natasha
 
                 formData.append('message', emailContent);
 
+                console.log('Sending Formspree request...');
                 const response = await fetch(FORMSPREE_CONFIG.endpoint, {
                     method: 'POST',
                     headers: {
@@ -1748,18 +1730,30 @@ Ronak & Natasha
                     body: formData
                 });
 
+                console.log('Formspree response status:', response.status);
+                
                 if (response.ok) {
-                    showEmailStatus('success', `✅ QR code sent to ${guest.email} (with CC)`);
-                    await markEmailAsSent(guest.id);
+                    const result = await response.json();
+                    console.log('Formspree success:', result);
+                    showEmailStatus('success', `✅ QR code sent to ${email} (with CC)`);
+                    
+                    // Try to mark as sent, but don't fail if this doesn't work
+                    try {
+                        await markEmailAsSent(guest.id);
+                    } catch (updateError) {
+                        console.warn('Could not update email sent status:', updateError);
+                    }
+                    
                     return true;
                 } else {
-                    const errorData = await response.json();
-                    throw new Error(errorData.error || 'Formspree request failed');
+                    const errorData = await response.text();
+                    console.error('Formspree error response:', errorData);
+                    throw new Error(`Formspree request failed: ${response.status} ${response.statusText}`);
                 }
                 
             } catch (error) {
                 console.error('Error sending email:', error);
-                showEmailStatus('error', `Failed to send to ${guest.email}: ${error.message}`);
+                showEmailStatus('error', `Failed to send to ${email}: ${error.message}`);
                 return false;
             }
         }
@@ -1858,7 +1852,6 @@ Ronak & Natasha
         }
 
         // ========== GUEST FILTERING ==========
-        // Filter guests function
         function filterGuests(filter) {
             currentGuestFilter = filter;
             
@@ -2690,6 +2683,31 @@ Ronak & Natasha
                 document.getElementById('formspreeEndpoint').value = FORMSPREE_CONFIG.endpoint || '';
                 document.getElementById('fromName').value = FORMSPREE_CONFIG.fromName || '';
             }
+        }
+
+        // Debug guest emails function
+        function debugGuestEmails() {
+            console.log('=== DEBUG: Guest Email Analysis ===');
+            const guestsWithEmails = guests.filter(g => g.email && g.email.trim() !== '');
+            const guestsWithoutEmails = guests.filter(g => !g.email || g.email.trim() === '');
+            const guestsWithInvalidEmails = guests.filter(g => g.email && g.email.trim() !== '' && !isValidEmail(g.email));
+            
+            console.log(`Total guests: ${guests.length}`);
+            console.log(`Guests with valid emails: ${guestsWithEmails.length}`);
+            console.log(`Guests without emails: ${guestsWithoutEmails.length}`);
+            console.log(`Guests with invalid emails: ${guestsWithInvalidEmails.length}`);
+            
+            console.log('Guests without emails:');
+            guestsWithoutEmails.forEach(guest => {
+                console.log(`- ${guest.first_name} ${guest.last_name}: "${guest.email}"`);
+            });
+            
+            console.log('Guests with invalid emails:');
+            guestsWithInvalidEmails.forEach(guest => {
+                console.log(`- ${guest.first_name} ${guest.last_name}: "${guest.email}"`);
+            });
+            
+            alert(`Email Debug Results:\nTotal Guests: ${guests.length}\nValid Emails: ${guestsWithEmails.length}\nNo Email: ${guestsWithoutEmails.length}\nInvalid Emails: ${guestsWithInvalidEmails.length}\nCheck browser console for details.`);
         }
     </script>
 </body>
