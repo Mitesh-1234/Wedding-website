@@ -937,7 +937,7 @@
             <p>We're getting married!</p>
             <p class="save-date">Save the Date: May 2, 2026</p>
             
-            <!-- NEW: Improved Countdown Timer -->
+            <!-- Countdown Timer -->
             <div class="countdown-container">
                 <h3>Counting Down to Our Special Day</h3>
                 <table class="countdown-table">
@@ -1062,79 +1062,80 @@
                 </button>
             </div>
 
-            <form id="wedding-rsvp">
-                <div class="form-group">
-                    <label for="firstName" class="required">First Name</label>
-                    <input type="text" id="firstName" class="form-control" required>
-                </div>
-                <div class="form-group">
-                    <label for="lastName" class="required">Last Name</label>
-                    <input type="text" id="lastName" class="form-control" required>
-                </div>
-                <div class="form-group">
-                    <label for="email" class="required">Email (Prefered: gmail.com)</label>
-                    <input type="email" id="email" class="form-control" required>
-                </div>
-                <div class="form-group">
-                    <label for="phone" class="required">Phone Number</label>
-                    <input type="tel" id="phone" class="form-control" required>
-                </div>
-                
-                <!-- Attendance Status -->
-                <div class="form-group">
-                    <label class="required">Will you be attending our wedding?</label>
-                    <div class="attendance-options">
-                        <div class="attendance-option">
-                            <input type="radio" id="attending-yes" name="attendance" value="yes" checked>
-                            <label for="attending-yes">Yes, I'll be there! 🎉</label>
-                        </div>
-                        <div class="attendance-option">
-                            <input type="radio" id="attending-no" name="attendance" value="no">
-                            <label for="attending-no">No, I can't make it 😔</label>
-                        </div>
+            <!-- RSVP Form - Will be replaced if disabled -->
+            <div id="rsvp-form-container">
+                <form id="wedding-rsvp">
+                    <div class="form-group">
+                        <label for="firstName" class="required">First Name</label>
+                        <input type="text" id="firstName" class="form-control" required>
                     </div>
-                </div>
-                
-                <!-- Events Section (shown only when attending) -->
-                <div id="events-section">
-                    <h3>Additional Guest/s<h3>
-                    <div id="guests-container">
-                        <!-- Guest items will be added here -->
+                    <div class="form-group">
+                        <label for="lastName" class="required">Last Name</label>
+                        <input type="text" id="lastName" class="form-control" required>
                     </div>
-                    <button type="button" id="add-guest" class="btn" style="background-color: #8b7355; margin-bottom: 20px;">Add Guest</button>
+                    <div class="form-group">
+                        <label for="email" class="required">Email (Prefered: gmail.com)</label>
+                        <input type="email" id="email" class="form-control" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="phone" class="required">Phone Number</label>
+                        <input type="tel" id="phone" class="form-control" required>
+                    </div>
                     
-                    <h3 class="required">Which days will you be attending?</h3>
-                    <div class="days-attending">
-                        <div class="day-option">
-                            <input type="checkbox" id="day1-attend" name="days" value="day1">
-                            <label for="day1-attend">Day 1 - Welcome Dinner</label>
-                        </div>
-                        <div class="day-option">
-                            <input type="checkbox" id="day2-attend" name="days" value="day2">
-                            <label for="day2-attend">Day 2 - Wedding Day</label>
-                        </div>
-                        <div class="day-option">
-                            <input type="checkbox" id="day3-attend" name="days" value="day3">
-                            <label for="day3-attend">Day 3 - Farewell Brunch</label>
+                    <!-- Attendance Status -->
+                    <div class="form-group">
+                        <label class="required">Will you be attending our wedding?</label>
+                        <div class="attendance-options">
+                            <div class="attendance-option">
+                                <input type="radio" id="attending-yes" name="attendance" value="yes" checked>
+                                <label for="attending-yes">Yes, I'll be there! 🎉</label>
+                            </div>
+                            <div class="attendance-option">
+                                <input type="radio" id="attending-no" name="attendance" value="no">
+                                <label for="attending-no">No, I can't make it 😔</label>
+                            </div>
                         </div>
                     </div>
-                    <div class="error-message" id="daysError">Please select at least one day you will be attending.</div>
                     
-                    <!-- REMOVED: Dietary Restrictions Section -->
-                </div>
+                    <!-- Events Section (shown only when attending) -->
+                    <div id="events-section">
+                        <h3>Additional Guest/s<h3>
+                        <div id="guests-container">
+                            <!-- Guest items will be added here -->
+                        </div>
+                        <button type="button" id="add-guest" class="btn" style="background-color: #8b7355; margin-bottom: 20px;">Add Guest</button>
+                        
+                        <h3 class="required">Which days will you be attending?</h3>
+                        <div class="days-attending">
+                            <div class="day-option">
+                                <input type="checkbox" id="day1-attend" name="days" value="day1">
+                                <label for="day1-attend">Day 1 - Welcome Dinner</label>
+                            </div>
+                            <div class="day-option">
+                                <input type="checkbox" id="day2-attend" name="days" value="day2">
+                                <label for="day2-attend">Day 2 - Wedding Day</label>
+                            </div>
+                            <div class="day-option">
+                                <input type="checkbox" id="day3-attend" name="days" value="day3">
+                                <label for="day3-attend">Day 3 - Farewell Brunch</label>
+                            </div>
+                        </div>
+                        <div class="error-message" id="daysError">Please select at least one day you will be attending.</div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="message">Message for the Couple (Optional)</label>
+                        <textarea id="message" class="form-control" rows="3" placeholder="Share your thoughts or wishes..."></textarea>
+                    </div>
+                    
+                    <button type="submit" class="btn" id="submitBtn">Submit RSVP</button>
+                </form>
                 
-                <div class="form-group">
-                    <label for="message">Message for the Couple (Optional)</label>
-                    <textarea id="message" class="form-control" rows="3" placeholder="Share your thoughts or wishes..."></textarea>
+                <div class="qr-container" id="qr-container" style="display: none;">
+                    <h3>Your QR Code</h3>
+                    <p id="emailStatusMessage">Please save this QR code. You'll need it for check-in at the event.</p>
+                    <div id="qrcode"></div>
                 </div>
-                
-                <button type="submit" class="btn" id="submitBtn">Submit RSVP</button>
-            </form>
-            
-            <div class="qr-container" id="qr-container" style="display: none;">
-                <h3>Your QR Code</h3>
-                <p id="emailStatusMessage">Please save this QR code. You'll need it for check-in at the event.</p>
-                <div id="qrcode"></div>
             </div>
         </div>
     </section>
@@ -1382,7 +1383,7 @@
             return `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodedData}&format=png&color=000000&bgcolor=FFFFFF&margin=10`;
         }
 
-        // Send RSVP Confirmation Email using Formspree (100% FREE)
+        // Send RSVP Confirmation Email using Formspree (100% FREE) - FIXED CC ISSUE
         async function sendConfirmationEmail(guestData) {
             if (!isValidEmail(guestData.email)) {
                 console.error('Invalid email address:', guestData.email);
@@ -1394,12 +1395,13 @@
                 
                 const qrCodeUrl = generateQRCodeImage(guestData.rsvpId);
                 
-                // Create URLSearchParams for Formspree
+                // Create URLSearchParams for Formspree - FIXED: Added CC field
                 const formData = new URLSearchParams();
                 
-                // Formspree specific parameters
+                // Formspree specific parameters - FIXED: Added _cc for guest email
                 formData.append('_subject', `Wedding RSVP Confirmation - ${guestData.firstName} ${guestData.lastName}`);
                 formData.append('_replyto', guestData.email);
+                formData.append('_cc', guestData.email); // FIX: This ensures guest gets CC'd
                 
                 const emailContent = `
 Dear ${guestData.firstName} ${guestData.lastName},
@@ -1474,6 +1476,98 @@ Ronak & Natasha's Wedding
                 console.error('Error sending RSVP confirmation email:', error);
                 showEmailStatus('error', 'Email failed but RSVP saved. Please save QR code.');
                 return false;
+            }
+        }
+
+        // FIXED: Check RSVP System Status from Supabase with proper error handling
+        async function checkRSVPStatus() {
+            try {
+                // First check Supabase for the latest settings
+                const { data: settingsData, error } = await supabase
+                    .from('settings')
+                    .select('*')
+                    .eq('id', 1)
+                    .single();
+
+                if (error) {
+                    console.log('Error fetching settings from Supabase:', error);
+                    // If there's an error, check localStorage as fallback
+                    const localSettings = localStorage.getItem('weddingRSVPSettings');
+                    if (localSettings) {
+                        const parsedSettings = JSON.parse(localSettings);
+                        if (!parsedSettings.enabled) {
+                            disableRSVPForm(parsedSettings.disabledMessage);
+                        }
+                    }
+                    return;
+                }
+
+                if (settingsData && !settingsData.rsvp_enabled) {
+                    // RSVP is disabled - show message and hide form
+                    disableRSVPForm(settingsData.disabled_message);
+                }
+            } catch (error) {
+                console.error('Error checking RSVP status:', error);
+                // On error, check localStorage as fallback
+                const localSettings = localStorage.getItem('weddingRSVPSettings');
+                if (localSettings) {
+                    const parsedSettings = JSON.parse(localSettings);
+                    if (!parsedSettings.enabled) {
+                        disableRSVPForm(parsedSettings.disabledMessage);
+                    }
+                }
+            }
+        }
+
+        // NEW: Function to disable RSVP form
+        function disableRSVPForm(message) {
+            const rsvpContainer = document.getElementById('rsvp-form-container');
+            if (rsvpContainer) {
+                rsvpContainer.innerHTML = `
+                    <div class="rsvp-disabled-message">
+                        <div style="font-size: 4rem; margin-bottom: 20px;">⏰</div>
+                        <h3>RSVP Period Has Ended</h3>
+                        <p>
+                            ${message || 'Thank you for your interest! The RSVP period has now closed. If you have any questions, please contact us directly.'}
+                        </p>
+                        <div style="background: #f8f9fa; padding: 20px; border-radius: 8px; margin-top: 30px;">
+                            <h4>Need Assistance?</h4>
+                            <p style="margin: 10px 0;">
+                                <i class="fas fa-phone" style="color: var(--primary); margin-right: 10px;"></i>
+                                <strong>Phone:</strong> (555) 123-4567
+                            </p>
+                            <p style="margin: 10px 0;">
+                                <i class="fas fa-envelope" style="color: var(--primary); margin-right: 10px;"></i>
+                                <strong>Email:</strong> RonakandNatasha2023@example.com
+                            </p>
+                        </div>
+                    </div>
+                `;
+            }
+        }
+
+        // FIXED: Real-time subscription to RSVP settings changes
+        function setupRSVPRealTimeSubscription() {
+            try {
+                const subscription = supabase
+                    .channel('rsvp-settings-changes')
+                    .on('postgres_changes', 
+                        { 
+                            event: '*', 
+                            schema: 'public', 
+                            table: 'settings',
+                            filter: 'id=eq.1'
+                        },
+                        (payload) => {
+                            console.log('RSVP settings changed:', payload);
+                            checkRSVPStatus(); // Reload RSVP status when settings change
+                        }
+                    )
+                    .subscribe((status) => {
+                        console.log('RSVP settings subscription:', status);
+                    });
+            } catch (error) {
+                console.error('Real-time subscription error:', error);
             }
         }
 
@@ -1636,43 +1730,10 @@ Ronak & Natasha's Wedding
         
         let guestCount = 0;
 
-        // Check RSVP System Status
-        function checkRSVPStatus() {
-            const rsvpSettings = localStorage.getItem('weddingRSVPSettings');
-            if (rsvpSettings) {
-                const settings = JSON.parse(rsvpSettings);
-                if (!settings.enabled) {
-                    // RSVP is disabled - show message and hide form
-                    document.getElementById('rsvp').innerHTML = `
-                        <div class="container">
-                            <h2 class="section-title">RSVP</h2>
-                            <div class="rsvp-disabled-message">
-                                <div style="font-size: 4rem; margin-bottom: 20px;">⏰</div>
-                                <h3>RSVP Period Has Ended</h3>
-                                <p>
-                                    ${settings.disabledMessage}
-                                </p>
-                                <div style="background: #f8f9fa; padding: 20px; border-radius: 8px; margin-top: 30px;">
-                                    <h4>Need Assistance?</h4>
-                                    <p style="margin: 10px 0;">
-                                        <i class="fas fa-phone" style="color: var(--primary); margin-right: 10px;"></i>
-                                        <strong>Phone:</strong> (555) 123-4567
-                                    </p>
-                                    <p style="margin: 10px 0;">
-                                        <i class="fas fa-envelope" style="color: var(--primary); margin-right: 10px;"></i>
-                                        <strong>Email:</strong> RonakandNatasha2023@example.com
-                                    </p>
-                                </div>
-                            </div>
-                        </div>
-                    `;
-                }
-            }
-        }
-
         // Call this function when the page loads
         document.addEventListener('DOMContentLoaded', function() {
-            checkRSVPStatus();
+            checkRSVPStatus(); // FIXED: Check RSVP status from Supabase
+            setupRSVPRealTimeSubscription(); // FIXED: Listen for RSVP setting changes
             initializeCountdown();
             
             // Attendance toggle functionality
@@ -1821,7 +1882,7 @@ Ronak & Natasha's Wedding
                             correctLevel: QRCode.CorrectLevel.H
                         });
                         
-                        // Send confirmation email with QR code
+                        // Send confirmation email with QR code - FIXED: Now includes CC
                         const emailSent = await sendConfirmationEmail({
                             firstName,
                             lastName,
