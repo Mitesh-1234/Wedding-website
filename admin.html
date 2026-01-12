@@ -1298,7 +1298,15 @@
         // Initialize Supabase
         const SUPABASE_URL = 'https://hlmdlrfqhcttpqhlnhlh.supabase.co';
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhsbWRscmZxaGN0dHBxaGxuaGxoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjA3MDMyNzEsImV4cCI6MjA3NjI3OTI3MX0.USnlr4Q-8Aad1a_R2_K-wXzWaH8nfy-CQFaEOuP-MHI';
-        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        // const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        // if (!window.supabase) {
+        //     window.supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        // }
+          window.supabaseClient = window.supabase.createClient(
+        SUPABASE_URL,
+        SUPABASE_ANON_KEY
+    );
+
 
         // Formspree Configuration
         let FORMSPREE_CONFIG = {
@@ -1333,7 +1341,7 @@
                 localStorage.setItem('weddingRSVPSettings', JSON.stringify(RSVP_SETTINGS));
                 
                 // Also save to Supabase for cross-device sync
-                const { error } = await supabase
+                const { error } = await supabaseClient
                     .from('settings')
                     .upsert({
                         id: 1,
@@ -1697,7 +1705,6 @@ If you can see the QR code above and receive this email in both your inbox and C
 Dear ${guest.first_name},
 
 Thank you for RSVPing to our wedding! Please save your QR code below for quick check-in at the events.
-
 YOUR QR CODE:
 <img src="${qrCodeUrl}" alt="Wedding QR Code" width="200" height="200" />
 
@@ -1840,7 +1847,7 @@ Ronak & Natasha
         // Mark email as sent in database
         async function markEmailAsSent(guestId) {
             try {
-                const { error } = await supabase
+                const { error } = await supabaseClient
                     .from('guests')
                     .update({ email_sent: true })
                     .eq('id', guestId);
@@ -2145,7 +2152,7 @@ Ronak & Natasha
             
             try {
                 // Find guest in Supabase
-                const { data: guestData, error: guestError } = await supabase
+                const { data: guestData, error: guestError } = await supabaseClient
                     .from('guests')
                     .select('*')
                     .eq('rsvp_id', rsvpId)
@@ -2171,7 +2178,7 @@ Ronak & Natasha
                 }
                 
                 // Check if already checked in for this specific day
-                const { data: existingAttendance, error: attendanceError } = await supabase
+                const { data: existingAttendance, error: attendanceError } = await supabaseClient
                     .from('attendance')
                     .select('*')
                     .eq('rsvp_id', rsvpId)
@@ -2199,7 +2206,7 @@ Ronak & Natasha
                     );
                 } else {
                     // Record attendance for this specific day
-                    const { data: newAttendance, error: insertError } = await supabase
+                    const { data: newAttendance, error: insertError } = await supabaseClient
                         .from('attendance')
                         .insert([
                             {
@@ -2221,7 +2228,7 @@ Ronak & Natasha
                         if (!updatedCheckedInDays.includes(currentScanDay)) {
                             updatedCheckedInDays.push(currentScanDay);
                             
-                            const { error: updateError } = await supabase
+                            const { error: updateError } = await supabaseClient
                                 .from('guests')
                                 .update({ checked_in_days: updatedCheckedInDays })
                                 .eq('rsvp_id', rsvpId);
@@ -2310,7 +2317,7 @@ Ronak & Natasha
         function setupRealtimeSubscription() {
             try {
                 // Subscribe to attendance changes
-                const attendanceSubscription = supabase
+                const attendanceSubscription = supabaseClient
                     .channel('attendance-changes')
                     .on('postgres_changes', 
                         { event: '*', schema: 'public', table: 'attendance' },
@@ -2325,7 +2332,7 @@ Ronak & Natasha
                     });
 
                 // Subscribe to guest changes
-                const guestSubscription = supabase
+                const guestSubscription = supabaseClient
                     .channel('guest-changes')
                     .on('postgres_changes', 
                         { event: '*', schema: 'public', table: 'guests' },
@@ -2361,7 +2368,7 @@ Ronak & Natasha
         async function loadDashboardData() {
             try {
                 // Load guests from guests table
-                const { data: guestsData, error: guestsError } = await supabase
+                const { data: guestsData, error: guestsError } = await supabaseClient
                     .from('guests')
                     .select('*')
                     .order('created_at', { ascending: false });
@@ -2370,7 +2377,7 @@ Ronak & Natasha
                 guests = guestsData || [];
 
                 // Load attendance
-                const { data: attendanceData, error: attendanceError } = await supabase
+                const { data: attendanceData, error: attendanceError } = await supabaseClient
                     .from('attendance')
                     .select('*')
                     .order('check_in_time', { ascending: false });
@@ -2564,7 +2571,7 @@ Ronak & Natasha
         // Export functionality
         async function exportGuests() {
             try {
-                const { data: guestsData, error } = await supabase
+                const { data: guestsData, error } = await supabaseClient
                     .from('guests')
                     .select('*')
                     .order('created_at', { ascending: false });
@@ -2593,7 +2600,7 @@ Ronak & Natasha
 
         async function exportAttendance() {
             try {
-                const { data: attendanceData, error } = await supabase
+                const { data: attendanceData, error } = await supabaseClient
                     .from('attendance')
                     .select('*')
                     .order('check_in_time', { ascending: false });
