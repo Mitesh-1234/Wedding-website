@@ -45,7 +45,7 @@
     
     section {
         padding: 80px 0;
-        scroll-margin-top: 70px; /* NEW: Prevent navbar overlap when scrolling */
+        scroll-margin-top: 70px;
     }
     
     .btn {
@@ -67,7 +67,6 @@
         box-shadow: 0 10px 20px rgba(0,0,0,0.1);
     }
     
-    /* NEW: Improved Countdown Timer Styles */
     .countdown-container {
         text-align: center;
         margin: 30px 0;
@@ -119,29 +118,31 @@
         border: 2px solid rgba(255, 255, 255, 0.3);
     }
 
-    /* FIXED: Header & Navigation - More compact */
     header {
         position: fixed;
         top: 0;
         left: 0;
         width: 100%;
-        z-index: 1000;
+        height: 60px;
+        padding: 0;
+        display: flex;
+        align-items: center;
         background-color: rgba(255,255,255,0.95);
         box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-        transition: all 0.3s ease;
-        padding: 12px 0; /* REDUCED from 20px */
+        transition: background-color 0.3s ease, box-shadow 0.3s ease;
+        z-index: 1000;
     }
     
     .navbar {
         display: flex;
         justify-content: space-between;
         align-items: center;
-        padding: 0; /* CHANGED from 20px 0 */
+        padding: 0;
     }
     
     .logo {
         font-family: 'Playfair Display', serif;
-        font-size: 22px; /* SLIGHTLY SMALLER */
+        font-size: 22px;
         color: var(--primary);
         text-decoration: none;
     }
@@ -152,7 +153,7 @@
     }
     
     .nav-links li {
-        margin-left: 25px; /* SLIGHTLY REDUCED */
+        margin-left: 25px;
     }
     
     .nav-links a {
@@ -160,26 +161,30 @@
         color: var(--dark);
         font-weight: 500;
         transition: color 0.3s ease;
-        font-size: 14px; /* SMALLER FONT */
-        padding: 8px 0; /* ADDED PADDING FOR BETTER CLICK AREA */
+        font-size: 14px;
+        padding: 8px 0;
     }
     
     .nav-links a:hover {
         color: var(--primary);
     }
 
-    /* Mobile Navigation */
     .hamburger {
         display: none;
         background: none;
         border: none;
-        font-size: 22px; /* SLIGHTLY SMALLER */
+        font-size: 22px;
         color: var(--dark);
         cursor: pointer;
-        padding: 5px;
+        padding: 10px;
+        margin: 0;
+        line-height: 1;
+        position: absolute;
+        right: 15px;
+        top: 50%;
+        transform: translateY(-35%);
     }
 
-    /* FIXED: Hero Section - Accounts for navbar height */
     .hero {
         height: 100vh;
         display: flex;
@@ -189,13 +194,14 @@
         background: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6));
         color: var(--light);
         position: relative;
-        padding-top: 70px; /* NEW: Prevent navbar overlap */
+        padding-top: 60px;
+        margin-top: 60px;
     }
     
     .hero-content {
         max-width: 800px;
         padding: 0 20px;
-        margin-top: -40px; /* NEW: Center content better */
+        margin-top: -40px;
     }
     
     .hero h1 {
@@ -215,7 +221,6 @@
         margin-top: 20px;
     }
     
-    /* IMPROVED: Slideshow with proper image handling */
     .slideshow {
         position: absolute;
         top: 0;
@@ -242,7 +247,6 @@
         opacity: 1;
     }
     
-    /* Our Story */
     .our-story {
         background-color: var(--accent);
     }
@@ -270,7 +274,6 @@
         display: block;
     }
     
-    /* Event Schedule */
     .schedule-tabs {
         display: flex;
         justify-content: center;
@@ -317,7 +320,6 @@
         margin-bottom: 10px;
     }
     
-    /* RSVP Section */
     .rsvp {
         background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
     }
@@ -402,7 +404,6 @@
         box-shadow: 0 5px 15px rgba(0,0,0,0.1);
     }
 
-    /* Success Message */
     .success-message {
         background: #d4edda;
         color: #155724;
@@ -413,7 +414,6 @@
         display: none;
     }
     
-    /* IMPROVED: Email Status Styles for better mobile display */
     .email-status {
         padding: 15px;
         border-radius: 5px;
@@ -441,7 +441,6 @@
         border: 1px solid #ffeaa7;
     }
 
-    /* IMPROVED: Gallery Section with better mobile layout */
     .gallery {
         background-color: var(--light);
     }
@@ -501,7 +500,6 @@
         opacity: 0.9;
     }
 
-    /* Lightbox Modal */
     .lightbox {
         display: none;
         position: fixed;
@@ -585,7 +583,6 @@
         font-size: 1.1rem;
     }
     
-    /* Footer */
     footer {
         background-color: var(--dark);
         color: var(--light);
@@ -647,13 +644,11 @@
         border-top: 1px solid rgba(255,255,255,0.1);
     }
     
-    /* Animations */
     @keyframes fadeIn {
         from { opacity: 0; }
         to { opacity: 1; }
     }
 
-    /* Attendance Options */
     .attendance-options {
         display: flex;
         gap: 20px;
@@ -670,7 +665,6 @@
         margin: 0;
     }
 
-    /* Error Message */
     .error-message {
         color: #dc3545;
         font-size: 0.875rem;
@@ -678,18 +672,17 @@
         display: none;
     }
 
-    /* IMPROVED: Mobile Responsive Styles */
     @media (max-width: 768px) {
         .hamburger {
             display: block;
             position: absolute;
-            top: 12px; /* ADJUSTED for smaller navbar */
+            top: 12px;
             right: 15px;
         }
         
         .nav-links {
             position: fixed;
-            top: 60px; /* ADJUSTED for smaller navbar */
+            top: 60px;
             left: 0;
             width: 100%;
             background-color: white;
@@ -714,17 +707,15 @@
             position: relative;
         }
 
-        /* FIXED: Hero Section for Mobile - Accounts for smaller navbar */
         .hero {
-            padding-top: 60px; /* ADJUSTED for mobile */
+            padding-top: 60px;
             height: calc(100vh - 60px);
         }
         
         .hero-content {
-            margin-top: 0; /* Reset on mobile */
+            margin-top: 0;
         }
 
-        /* Improved Hero Section for Mobile */
         .hero h1 {
             font-size: 2.5rem;
         }
@@ -737,7 +728,6 @@
             font-size: 1rem;
         }
 
-        /* Improved Countdown for Mobile */
         .countdown-container {
             padding: 20px 15px;
             margin: 20px 0;
@@ -758,12 +748,10 @@
             font-size: 0.8rem;
         }
 
-        /* Improved Story Section for Mobile */
         .story-content {
             flex-direction: column;
         }
 
-        /* Improved Schedule Tabs for Mobile */
         .schedule-tabs {
             flex-direction: column;
             align-items: center;
@@ -774,7 +762,6 @@
             width: 200px;
         }
 
-        /* Improved Gallery for Mobile - 2 columns */
         .gallery-grid {
             grid-template-columns: repeat(2, 1fr);
             gap: 15px;
@@ -784,7 +771,6 @@
             aspect-ratio: 1;
         }
 
-        /* Improved RSVP Form for Mobile */
         .rsvp-form {
             padding: 25px 20px;
         }
@@ -804,7 +790,6 @@
             font-size: 16px;
         }
 
-        /* Improved Lightbox for Mobile */
         .lightbox-nav {
             width: 40px;
             height: 40px;
@@ -819,13 +804,11 @@
             right: 10px;
         }
 
-        /* Improved Email Status for Mobile */
         .email-status {
             padding: 12px;
             font-size: 0.9rem;
         }
 
-        /* FIXED: Section scroll margins for mobile */
         section {
             scroll-margin-top: 60px;
         }
@@ -864,7 +847,6 @@
         }
     }
 
-    /* Specific fix for RSVP disabled message overflow */
     .rsvp-disabled-message {
         text-align: center;
         padding: 40px 20px;
@@ -903,9 +885,37 @@
             font-size: 1rem;
         }
     }
+
+    /* Notification styles */
+    .notification {
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        background: var(--primary);
+        color: white;
+        padding: 15px 20px;
+        border-radius: 5px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        z-index: 9999;
+        animation: slideIn 0.3s ease;
+        max-width: 300px;
+    }
+    
+    @keyframes slideIn {
+        from { transform: translateX(100%); opacity: 0; }
+        to { transform: translateX(0); opacity: 1; }
+    }
+    
+    @keyframes slideOut {
+        from { transform: translateX(0); opacity: 1; }
+        to { transform: translateX(100%); opacity: 0; }
+    }
 </style>
 </head>
 <body>
+    <!-- Notification Container -->
+    <div id="notificationContainer"></div>
+    
     <!-- Header -->
     <header>
         <div class="container">
@@ -937,7 +947,6 @@
             <p>We're getting married!</p>
             <p class="save-date">Save the Date: May 2, 2026</p>
             
-            <!-- NEW: Improved Countdown Timer -->
             <div class="countdown-container">
                 <h3>Counting Down to Our Special Day</h3>
                 <table class="countdown-table">
@@ -1053,84 +1062,12 @@
                 <i class="fas fa-exclamation-triangle"></i> <span id="emailErrorText"></span>
             </div>
 
-            <div class="success-message" id="successMessage" style="display: none;">
-                <h3 id="successTitle">🎉 Thank you for your RSVP!</h3>
-                <p id="successMessageText">Your RSVP has been confirmed. Please save your QR code below for check-in.</p>
-                <p><strong>RSVP ID:</strong> <span id="rsvpIdDisplay"></span></p>
-                <button onclick="newRSVP()" class="btn" style="margin-top: 15px; background-color: var(--secondary);">
-                    Submit Another RSVP
-                </button>
+            <!-- RSVP Form Container -->
+            <div id="rsvpFormContainer">
+                <!-- Form will be loaded here dynamically -->
             </div>
 
-            <form id="wedding-rsvp">
-                <div class="form-group">
-                    <label for="first_name" class="required">First Name</label>
-                    <input type="text" id="first_name" class="form-control" required>
-                </div>
-                <div class="form-group">
-                    <label for="last_name" class="required">Last Name</label>
-                    <input type="text" id="last_name" class="form-control" required>
-                </div>
-                <div class="form-group">
-                    <label for="email" class="required">Email (Prefered: gmail.com)</label>
-                    <input type="email" id="email" class="form-control" required>
-                </div>
-                <div class="form-group">
-                    <label for="phone" class="required">Phone Number</label>
-                    <input type="tel" id="phone" class="form-control" required>
-                </div>
-                
-                <!-- Attendance Status -->
-                <div class="form-group">
-                    <label class="required">Will you be attending our wedding?</label>
-                    <div class="attendance-options">
-                        <div class="attendance-option">
-                            <input type="radio" id="attending-yes" name="attendance" value="yes" checked>
-                            <label for="attending-yes">Yes, I'll be there! 🎉</label>
-                        </div>
-                        <div class="attendance-option">
-                            <input type="radio" id="attending-no" name="attendance" value="no">
-                            <label for="attending-no">No, I can't make it 😔</label>
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- Events Section (shown only when attending) -->
-                <div id="events-section">
-                    <h3>Additional Guest/s<h3>
-                    <div id="guests-container">
-                        <!-- Guest items will be added here -->
-                    </div>
-                    <button type="button" id="add-guest" class="btn" style="background-color: #8b7355; margin-bottom: 20px;">Add Guest</button>
-                    
-                    <h3 class="required">Which days will you be attending?</h3>
-                    <div class="days-attending">
-                        <div class="day-option">
-                            <input type="checkbox" id="day1-attend" name="days" value="day1">
-                            <label for="day1-attend">Day 1 - Welcome Dinner</label>
-                        </div>
-                        <div class="day-option">
-                            <input type="checkbox" id="day2-attend" name="days" value="day2">
-                            <label for="day2-attend">Day 2 - Wedding Day</label>
-                        </div>
-                        <div class="day-option">
-                            <input type="checkbox" id="day3-attend" name="days" value="day3">
-                            <label for="day3-attend">Day 3 - Farewell Brunch</label>
-                        </div>
-                    </div>
-                    <div class="error-message" id="daysError">Please select at least one day you will be attending.</div>
-                    
-                    <!-- REMOVED: Dietary Restrictions Section -->
-                </div>
-                
-                <div class="form-group">
-                    <label for="message">Message for the Couple (Optional)</label>
-                    <textarea id="message" class="form-control" rows="3" placeholder="Share your thoughts or wishes..."></textarea>
-                </div>
-                
-                <button type="submit" class="btn" id="submitBtn">Submit RSVP</button>
-            </form>
-            
+            <!-- QR Container -->
             <div class="qr-container" id="qr-container" style="display: none;">
                 <h3>Your QR Code</h3>
                 <p id="emailStatusMessage">Please save this QR code. You'll need it for check-in at the event.</p>
@@ -1251,22 +1188,12 @@
         // Initialize Supabase
         const SUPABASE_URL = 'https://hlmdlrfqhcttpqhlnhlh.supabase.co';
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhsbWRscmZxaGN0dHBxaGxuaGxoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjA3MDMyNzEsImV4cCI6MjA3NjI3OTI3MX0.USnlr4Q-8Aad1a_R2_K-wXzWaH8nfy-CQFaEOuP-MHI';
-        // const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-        // if (!window.supabase) {
-        //     window.supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-        // }
-//          const supabase = window.supabase.createClient(
-//     SUPABASE_URL,
-//     SUPABASE_ANON_KEY
-//   );
-
-     window.supabaseClient = window.supabase.createClient(
-        SUPABASE_URL,
-        SUPABASE_ANON_KEY
-    );
-
-        // Formspree Configuration for RSVP Confirmations (100% FREE)
-        const FORMSPREE_RSVP_ENDPOINT = 'https://formspree.io/f/xanpkwqy';
+        
+        let supabaseClient;
+        let rsvpSettings = {
+            enabled: true,
+            disabledMessage: 'Thank you for your interest! The RSVP period has now closed. If you have any questions, please contact us directly.'
+        };
 
         // Gallery images data
         const galleryImages = [
@@ -1394,7 +1321,10 @@
             return `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodedData}&format=png&color=000000&bgcolor=FFFFFF&margin=10`;
         }
 
-        // Send RSVP Confirmation Email using Formspree (100% FREE)
+        // Formspree Configuration for RSVP Confirmations
+        const FORMSPREE_RSVP_ENDPOINT = 'https://formspree.io/f/xanpkwqy';
+
+        // Send RSVP Confirmation Email using Formspree
         async function sendConfirmationEmail(guestData) {
             if (!isValidEmail(guestData.email)) {
                 console.error('Invalid email address:', guestData.email);
@@ -1490,15 +1420,14 @@ Ronak & Natasha's Wedding
             }
         }
 
-        // NEW: Improved Countdown Timer Function
+        // Initialize Countdown Timer
         function initializeCountdown() {
-            const weddingDate = new Date('2026-05-02T17:00:00'); // May 2, 2026, 5:00 PM
+            const weddingDate = new Date('2026-05-02T17:00:00');
             
             function updateCountdown() {
                 const now = new Date();
                 const timeRemaining = weddingDate - now;
                 
-                // If wedding date has passed
                 if (timeRemaining < 0) {
                     const countdownContainer = document.querySelector('.countdown-container');
                     if (countdownContainer) {
@@ -1512,13 +1441,11 @@ Ronak & Natasha's Wedding
                     return;
                 }
                 
-                // Calculate time units
                 const days = Math.floor(timeRemaining / (1000 * 60 * 60 * 24));
                 const hours = Math.floor((timeRemaining % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
                 const minutes = Math.floor((timeRemaining % (1000 * 60 * 60)) / (1000 * 60));
                 const seconds = Math.floor((timeRemaining % (1000 * 60)) / 1000);
                 
-                // Update countdown display
                 const daysElement = document.getElementById('days');
                 const hoursElement = document.getElementById('hours');
                 const minutesElement = document.getElementById('minutes');
@@ -1529,26 +1456,6 @@ Ronak & Natasha's Wedding
                 if (minutesElement) minutesElement.textContent = minutes.toString().padStart(2, '0');
                 if (secondsElement) secondsElement.textContent = seconds.toString().padStart(2, '0');
                 
-                // Special effects when close to wedding
-                const countdownContainer = document.querySelector('.countdown-container');
-                if (countdownContainer) {
-                    if (days === 0) {
-                        // Today is the wedding day!
-                        countdownContainer.style.background = 'rgba(212, 175, 55, 0.3)';
-                        countdownContainer.style.border = '2px solid rgba(255, 255, 255, 0.5)';
-                        const title = countdownContainer.querySelector('h3');
-                        if (title) title.textContent = '🎉 Today is Our Wedding Day! 🎉';
-                    } else if (days <= 7) {
-                        // One week to go - add some excitement
-                        countdownContainer.style.background = 'rgba(212, 175, 55, 0.2)';
-                        countdownContainer.style.border = '2px solid rgba(255, 255, 255, 0.3)';
-                    } else if (days <= 30) {
-                        // One month to go
-                        countdownContainer.style.background = 'rgba(255, 255, 255, 0.15)';
-                    }
-                }
-                
-                // Special milestone messages
                 updateMilestoneMessage(days);
             }
             
@@ -1569,11 +1476,455 @@ Ronak & Natasha's Wedding
                 title.textContent = message;
             }
             
-            // Initialize immediately
             updateCountdown();
-            
-            // Update every second
             setInterval(updateCountdown, 1000);
+        }
+
+        // Show notification
+        function showNotification(message, duration = 5000) {
+            const container = document.getElementById('notificationContainer');
+            const notification = document.createElement('div');
+            notification.className = 'notification';
+            notification.textContent = message;
+            notification.style.animation = 'slideIn 0.3s ease';
+            
+            container.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.style.animation = 'slideOut 0.3s ease';
+                setTimeout(() => {
+                    if (notification.parentNode) {
+                        notification.parentNode.removeChild(notification);
+                    }
+                }, 300);
+            }, duration);
+        }
+
+        // Check RSVP System Status from Supabase
+        async function checkRSVPStatus() {
+            try {
+                if (!supabaseClient) {
+                    console.error('Supabase client not initialized');
+                    loadRSVPForm();
+                    return;
+                }
+                
+                const { data, error } = await supabaseClient
+                    .from('settings')
+                    .select('*')
+                    .eq('id', 1)
+                    .single();
+
+                if (!error && data) {
+                    rsvpSettings.enabled = data.rsvp_enabled;
+                    rsvpSettings.disabledMessage = data.disabled_message;
+                    console.log('RSVP Settings from Supabase:', rsvpSettings);
+                    
+                    // Update localStorage
+                    localStorage.setItem('weddingRSVPSettings', JSON.stringify(rsvpSettings));
+                } else {
+                    // Fallback to localStorage
+                    const savedSettings = localStorage.getItem('weddingRSVPSettings');
+                    if (savedSettings) {
+                        rsvpSettings = { ...rsvpSettings, ...JSON.parse(savedSettings) };
+                        console.log('RSVP Settings from localStorage:', rsvpSettings);
+                    }
+                }
+                
+                // Display appropriate content
+                if (!rsvpSettings.enabled) {
+                    showDisabledRSVPMessage();
+                } else {
+                    loadRSVPForm();
+                }
+                
+            } catch (error) {
+                console.error('Error checking RSVP status:', error);
+                loadRSVPForm(); // Fallback to showing form
+            }
+        }
+
+        // Show disabled RSVP message
+        function showDisabledRSVPMessage() {
+            const rsvpContainer = document.getElementById('rsvpFormContainer');
+            rsvpContainer.innerHTML = `
+                <div class="rsvp-disabled-message">
+                    <div style="font-size: 4rem; margin-bottom: 20px;">⏰</div>
+                    <h3>RSVP Period Has Ended</h3>
+                    <p>${rsvpSettings.disabledMessage}</p>
+                    <div style="background: #f8f9fa; padding: 20px; border-radius: 8px; margin-top: 30px;">
+                        <h4>Need Assistance?</h4>
+                        <p style="margin: 10px 0;">
+                            <i class="fas fa-phone" style="color: var(--primary); margin-right: 10px;"></i>
+                            <strong>Phone:</strong> (555) 123-4567
+                        </p>
+                        <p style="margin: 10px 0;">
+                            <i class="fas fa-envelope" style="color: var(--primary); margin-right: 10px;"></i>
+                            <strong>Email:</strong> RonakandNatasha2023@example.com
+                        </p>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Load RSVP Form
+        function loadRSVPForm() {
+            const rsvpContainer = document.getElementById('rsvpFormContainer');
+            rsvpContainer.innerHTML = `
+                <div class="success-message" id="successMessage" style="display: none;">
+                    <h3 id="successTitle">🎉 Thank you for your RSVP!</h3>
+                    <p id="successMessageText">Your RSVP has been confirmed. Please save your QR code below for check-in.</p>
+                    <p><strong>RSVP ID:</strong> <span id="rsvpIdDisplay"></span></p>
+                    <button onclick="newRSVP()" class="btn" style="margin-top: 15px; background-color: var(--secondary);">
+                        Submit Another RSVP
+                    </button>
+                </div>
+
+                <form id="wedding-rsvp">
+                    <div class="form-group">
+                        <label for="first_name" class="required">First Name</label>
+                        <input type="text" id="first_name" class="form-control" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="last_name" class="required">Last Name</label>
+                        <input type="text" id="last_name" class="form-control" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="email" class="required">Email (Prefered: gmail.com)</label>
+                        <input type="email" id="email" class="form-control" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="phone" class="required">Phone Number</label>
+                        <input type="tel" id="phone" class="form-control" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="required">Will you be attending our wedding?</label>
+                        <div class="attendance-options">
+                            <div class="attendance-option">
+                                <input type="radio" id="attending-yes" name="attendance" value="yes" checked>
+                                <label for="attending-yes">Yes, I'll be there! 🎉</label>
+                            </div>
+                            <div class="attendance-option">
+                                <input type="radio" id="attending-no" name="attendance" value="no">
+                                <label for="attending-no">No, I can't make it 😔</label>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div id="events-section">
+                        <h3>Additional Guest/s<h3>
+                        <div id="guests-container"></div>
+                        <button type="button" id="add-guest" class="btn" style="background-color: #8b7355; margin-bottom: 20px;">Add Guest</button>
+                        
+                        <h3 class="required">Which days will you be attending?</h3>
+                        <div class="days-attending">
+                            <div class="day-option">
+                                <input type="checkbox" id="day1-attend" name="days" value="day1">
+                                <label for="day1-attend">Day 1 - Welcome Dinner</label>
+                            </div>
+                            <div class="day-option">
+                                <input type="checkbox" id="day2-attend" name="days" value="day2">
+                                <label for="day2-attend">Day 2 - Wedding Day</label>
+                            </div>
+                            <div class="day-option">
+                                <input type="checkbox" id="day3-attend" name="days" value="day3">
+                                <label for="day3-attend">Day 3 - Farewell Brunch</label>
+                            </div>
+                        </div>
+                        <div class="error-message" id="daysError">Please select at least one day you will be attending.</div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="message">Message for the Couple (Optional)</label>
+                        <textarea id="message" class="form-control" rows="3" placeholder="Share your thoughts or wishes..."></textarea>
+                    </div>
+                    
+                    <button type="submit" class="btn" id="submitBtn">Submit RSVP</button>
+                </form>
+            `;
+            
+            // Initialize form functionality
+            initializeRSVPForm();
+        }
+
+        // Initialize RSVP form functionality
+        function initializeRSVPForm() {
+            const rsvpForm = document.getElementById('wedding-rsvp');
+            const guestsContainer = document.getElementById('guests-container');
+            const addGuestBtn = document.getElementById('add-guest');
+            const eventsSection = document.getElementById('events-section');
+            const attendingYes = document.getElementById('attending-yes');
+            const attendingNo = document.getElementById('attending-no');
+            
+            let guestCount = 0;
+
+            // Attendance toggle
+            function toggleEventsSection() {
+                if (attendingYes && attendingYes.checked) {
+                    eventsSection.style.display = 'block';
+                } else {
+                    eventsSection.style.display = 'none';
+                }
+            }
+            
+            if (attendingYes && attendingNo) {
+                attendingYes.addEventListener('change', toggleEventsSection);
+                attendingNo.addEventListener('change', toggleEventsSection);
+                toggleEventsSection();
+            }
+
+            // Add guest functionality
+            if (addGuestBtn) {
+                addGuestBtn.addEventListener('click', () => {
+                    guestCount++;
+                    const guestItem = document.createElement('div');
+                    guestItem.className = 'guest-item';
+                    guestItem.innerHTML = `
+                        <h4>Guest ${guestCount}</h4>
+                        <div class="form-group">
+                            <label for="guestFirstName${guestCount}">First Name</label>
+                            <input type="text" id="guestFirstName${guestCount}" class="form-control guest-first-name" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="guestLastName${guestCount}">Last Name</label>
+                            <input type="text" id="guestLastName${guestCount}" class="form-control guest-last-name" required>
+                        </div>
+                        <button type="button" class="remove-guest">&times;</button>
+                    `;
+                    
+                    guestsContainer.appendChild(guestItem);
+                    
+                    const removeBtn = guestItem.querySelector('.remove-guest');
+                    removeBtn.addEventListener('click', () => {
+                        guestsContainer.removeChild(guestItem);
+                        guestCount--;
+                    });
+                });
+            }
+            
+            // Form submission
+            if (rsvpForm) {
+                rsvpForm.addEventListener('submit', async (e) => {
+                    e.preventDefault();
+                    
+                    const first_name = document.getElementById('first_name').value;
+                    const last_name = document.getElementById('last_name').value;
+                    const email = document.getElementById('email').value;
+                    const phone = document.getElementById('phone').value;
+                    const isAttending = document.getElementById('attending-yes').checked;
+                    
+                    if (!isValidEmail(email)) {
+                        alert('Please enter a valid email address.');
+                        return;
+                    }
+                    
+                    if (!phone) {
+                        alert('Please enter your phone number.');
+                        return;
+                    }
+                    
+                    const guests = [];
+                    let daysAttending = [];
+                    
+                    if (isAttending) {
+                        const guestItems = document.querySelectorAll('.guest-item');
+                        guestItems.forEach(item => {
+                            const guestFirstName = item.querySelector('.guest-first-name').value;
+                            const guestLastName = item.querySelector('.guest-last-name').value;
+                            if (guestFirstName && guestLastName) {
+                                guests.push({
+                                    first_name: guestFirstName, 
+                                    last_name: guestLastName
+                                });
+                            }
+                        });
+                        
+                        const selectedDays = document.querySelectorAll('input[name="days"]:checked');
+                        if (selectedDays.length === 0) {
+                            document.getElementById('daysError').style.display = 'block';
+                            return;
+                        } else {
+                            document.getElementById('daysError').style.display = 'none';
+                        }
+                        
+                        selectedDays.forEach(checkbox => {
+                            daysAttending.push(checkbox.value);
+                        });
+                    }
+                    
+                    const message = document.getElementById('message').value;
+                    const rsvp_id = 'RSVP-' + Date.now() + '-' + Math.floor(Math.random() * 1000);
+                    
+                    try {
+                        const submitBtn = document.getElementById('submitBtn');
+                        const originalText = submitBtn.textContent;
+                        submitBtn.textContent = 'Sending Confirmation...';
+                        submitBtn.disabled = true;
+
+                        // Insert into Supabase
+                        const { data, error } = await supabaseClient
+                            .from('guests')
+                            .insert([
+                                {
+                                    first_name: first_name,
+                                    last_name: last_name,
+                                    email: email,
+                                    phone: phone,
+                                    is_attending: isAttending,
+                                    guests: guests,
+                                    days_attending: isAttending ? daysAttending : [],
+                                    message: message,
+                                    rsvp_id: rsvp_id
+                                }
+                            ])
+                            .select();
+
+                        if (error) throw error;
+
+                        if (isAttending) {
+                            // Generate QR Code
+                            document.getElementById('qrcode').innerHTML = '';
+                            const qrcode = new QRCode(document.getElementById('qrcode'), {
+                                text: rsvp_id,
+                                width: 200,
+                                height: 200,
+                                colorDark: '#000000',
+                                colorLight: '#ffffff',
+                                correctLevel: QRCode.CorrectLevel.H
+                            });
+                            
+                            // Send email
+                            const emailSent = await sendConfirmationEmail({
+                                first_name,
+                                last_name,
+                                email,
+                                rsvp_id,
+                                daysAttending,
+                                guests,
+                                phone,
+                                message,
+                                isAttending: true
+                            });
+                            
+                            // Show success
+                            document.getElementById('successTitle').textContent = '🎉 Thank you for your RSVP!';
+                            document.getElementById('rsvpIdDisplay').textContent = rsvp_id;
+                            document.getElementById('successMessageText').textContent = 
+                                'Your RSVP has been confirmed. Please save your QR code below for check-in.';
+                            document.getElementById('successMessage').style.display = 'block';
+                            document.getElementById('qr-container').style.display = 'block';
+                            
+                            if (emailSent) {
+                                document.getElementById('emailStatusMessage').textContent = 
+                                    'A confirmation email with your QR code has been sent to your email address. Please save this QR code for check-in.';
+                            } else {
+                                document.getElementById('emailStatusMessage').innerHTML = 
+                                    '<strong>Please save your QR code below for check-in.</strong> Email delivery issue - but your RSVP is confirmed!';
+                            }
+                        } else {
+                            // Not attending
+                            document.getElementById('successTitle').textContent = 'Thank You for Your Response';
+                            document.getElementById('rsvpIdDisplay').textContent = rsvp_id;
+                            document.getElementById('successMessageText').textContent = 
+                                'Thank you for letting us know. We\'re sorry you can\'t make it, but we appreciate you taking the time to respond.';
+                            document.getElementById('successMessage').style.display = 'block';
+                            document.getElementById('qr-container').style.display = 'none';
+                            
+                            showEmailStatus('success', 'Your response has been recorded. No email will be sent.');
+                        }
+                        
+                        rsvpForm.style.display = 'none';
+                        document.getElementById('successMessage').scrollIntoView({ behavior: 'smooth' });
+                        
+                    } catch (error) {
+                        console.error('Error saving to Supabase:', error);
+                        alert('There was an error saving your RSVP. Please try again.');
+                        showEmailStatus('error', 'RSVP failed. Please try again.');
+                    } finally {
+                        const submitBtn = document.getElementById('submitBtn');
+                        if (submitBtn) {
+                            submitBtn.textContent = 'Submit RSVP';
+                            submitBtn.disabled = false;
+                        }
+                    }
+                });
+            }
+        }
+
+        // New RSVP function
+        function newRSVP() {
+            document.getElementById('successMessage').style.display = 'none';
+            document.getElementById('qr-container').style.display = 'none';
+            document.getElementById('wedding-rsvp').style.display = 'block';
+            document.getElementById('wedding-rsvp').reset();
+            document.getElementById('guests-container').innerHTML = '';
+            
+            // Reset attendance
+            document.getElementById('attending-yes').checked = true;
+            document.getElementById('attending-no').checked = false;
+            document.getElementById('events-section').style.display = 'block';
+            
+            // Hide error messages
+            document.getElementById('daysError').style.display = 'none';
+            
+            // Hide email status
+            showEmailStatus('none', '');
+            
+            document.getElementById('rsvp').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        // Setup real-time sync for RSVP settings
+        function setupWebsiteRealtimeSync() {
+            try {
+                if (!supabaseClient) return;
+                
+                const settingsSubscription = supabaseClient
+                    .channel('website-settings-sync')
+                    .on('postgres_changes', 
+                        { 
+                            event: '*', 
+                            schema: 'public', 
+                            table: 'settings',
+                            filter: 'id=eq.1'
+                        },
+                        (payload) => {
+                            console.log('Website: Settings changed:', payload);
+                            if (payload.new) {
+                                // Update local settings
+                                rsvpSettings.enabled = payload.new.rsvp_enabled;
+                                rsvpSettings.disabledMessage = payload.new.disabled_message;
+                                
+                                // Update localStorage
+                                localStorage.setItem('weddingRSVPSettings', JSON.stringify(rsvpSettings));
+                                
+                                // Show notification
+                                showNotification('RSVP settings have been updated. Refreshing page...');
+                                
+                                // Reload RSVP section after 3 seconds
+                                setTimeout(() => {
+                                    checkRSVPStatus();
+                                }, 3000);
+                            }
+                        }
+                    )
+                    .subscribe((status) => {
+                        console.log('Website settings subscription status:', status);
+                    });
+                    
+            } catch (error) {
+                console.error('Website real-time sync error:', error);
+            }
+        }
+
+        // Initialize Supabase client
+        function initializeSupabase() {
+            if (window.supabase && window.supabase.createClient) {
+                supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+                console.log('Supabase client initialized successfully');
+                return true;
+            }
+            return false;
         }
 
         // Slideshow functionality
@@ -1638,287 +1989,6 @@ Ronak & Natasha's Wedding
             });
         });
         
-        // RSVP Form functionality
-        const rsvpForm = document.getElementById('wedding-rsvp');
-        const guestsContainer = document.getElementById('guests-container');
-        const addGuestBtn = document.getElementById('add-guest');
-        const qrContainer = document.getElementById('qr-container');
-        const successMessage = document.getElementById('successMessage');
-        const eventsSection = document.getElementById('events-section');
-        const daysError = document.getElementById('daysError');
-        
-        let guestCount = 0;
-
-        // Check RSVP System Status
-        function checkRSVPStatus() {
-            const rsvpSettings = localStorage.getItem('weddingRSVPSettings');
-            if (rsvpSettings) {
-                const settings = JSON.parse(rsvpSettings);
-                if (!settings.enabled) {
-                    // RSVP is disabled - show message and hide form
-                    document.getElementById('rsvp').innerHTML = `
-                        <div class="container">
-                            <h2 class="section-title">RSVP</h2>
-                            <div class="rsvp-disabled-message">
-                                <div style="font-size: 4rem; margin-bottom: 20px;">⏰</div>
-                                <h3>RSVP Period Has Ended</h3>
-                                <p>
-                                    ${settings.disabledMessage}
-                                </p>
-                                <div style="background: #f8f9fa; padding: 20px; border-radius: 8px; margin-top: 30px;">
-                                    <h4>Need Assistance?</h4>
-                                    <p style="margin: 10px 0;">
-                                        <i class="fas fa-phone" style="color: var(--primary); margin-right: 10px;"></i>
-                                        <strong>Phone:</strong> (555) 123-4567
-                                    </p>
-                                    <p style="margin: 10px 0;">
-                                        <i class="fas fa-envelope" style="color: var(--primary); margin-right: 10px;"></i>
-                                        <strong>Email:</strong> RonakandNatasha2023@example.com
-                                    </p>
-                                </div>
-                            </div>
-                        </div>
-                    `;
-                }
-            }
-        }
-
-        // Call this function when the page loads
-        document.addEventListener('DOMContentLoaded', function() {
-            checkRSVPStatus();
-            initializeCountdown();
-            
-            // Attendance toggle functionality
-            const attendingYes = document.getElementById('attending-yes');
-            const attendingNo = document.getElementById('attending-no');
-            
-            function toggleEventsSection() {
-                if (attendingYes.checked) {
-                    eventsSection.style.display = 'block';
-                } else {
-                    eventsSection.style.display = 'none';
-                }
-            }
-            
-            if (attendingYes && attendingNo) {
-                attendingYes.addEventListener('change', toggleEventsSection);
-                attendingNo.addEventListener('change', toggleEventsSection);
-            }
-        });
-
-        // Add guest functionality
-        if (addGuestBtn) {
-            addGuestBtn.addEventListener('click', () => {
-                guestCount++;
-                const guestItem = document.createElement('div');
-                guestItem.className = 'guest-item';
-                guestItem.innerHTML = `
-                    <h4>Guest ${guestCount}</h4>
-                    <div class="form-group">
-                        <label for="guestFirstName${guestCount}">First Name</label>
-                        <input type="text" id="guestFirstName${guestCount}" class="form-control guest-first-name" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="guestLastName${guestCount}">Last Name</label>
-                        <input type="text" id="guestLastName${guestCount}" class="form-control guest-last-name" required>
-                    </div>
-                    <button type="button" class="remove-guest">&times;</button>
-                `;
-                
-                guestsContainer.appendChild(guestItem);
-                
-                const removeBtn = guestItem.querySelector('.remove-guest');
-                removeBtn.addEventListener('click', () => {
-                    guestsContainer.removeChild(guestItem);
-                    guestCount--;
-                });
-            });
-        }
-        
-        // Form submission with Supabase + Formspree Email
-        if (rsvpForm) {
-            rsvpForm.addEventListener('submit', async (e) => {
-                e.preventDefault();
-                
-                const first_name = document.getElementById('first_name').value;
-                const last_name = document.getElementById('last_name').value;
-                const email = document.getElementById('email').value;
-                const phone = document.getElementById('phone').value;
-                const isAttending = document.getElementById('attending-yes').checked;
-                
-                // Validate email
-                if (!isValidEmail(email)) {
-                    alert('Please enter a valid email address.');
-                    return;
-                }
-                
-                // Validate phone (required)
-                if (!phone) {
-                    alert('Please enter your phone number.');
-                    return;
-                }
-                
-                const guests = [];
-                let daysAttending = [];
-                
-                // Only collect event details if attending
-                if (isAttending) {
-                    const guestItems = document.querySelectorAll('.guest-item');
-                    guestItems.forEach(item => {
-                        const guestFirstName = item.querySelector('.guest-first-name').value;
-                        const guestLastName = item.querySelector('.guest-last-name').value;
-                        if (guestFirstName && guestLastName) {
-                            guests.push({
-                                first_name: guestFirstName, 
-                                last_name: guestLastName
-                            });
-                        }
-                    });
-                    
-                    // Validate that at least one day is selected
-                    const selectedDays = document.querySelectorAll('input[name="days"]:checked');
-                    if (selectedDays.length === 0) {
-                        daysError.style.display = 'block';
-                        return;
-                    } else {
-                        daysError.style.display = 'none';
-                    }
-                    
-                    selectedDays.forEach(checkbox => {
-                        daysAttending.push(checkbox.value);
-                    });
-                }
-                
-                const message = document.getElementById('message').value;
-                
-                // Generate unique RSVP ID
-                const rsvp_id = 'RSVP-' + Date.now() + '-' + Math.floor(Math.random() * 1000);
-                
-                try {
-                    // Show loading state
-                    const submitBtn = document.getElementById('submitBtn');
-                    const originalText = submitBtn.textContent;
-                    submitBtn.textContent = 'Sending Confirmation...';
-                    submitBtn.disabled = true;
-
-                    // Insert guest data into Supabase
-                    const { data, error } = await supabaseClient
-                        .from('guests')
-                        .insert([
-                            {
-                                first_name: first_name,
-                                last_name: last_name,
-                                email: email,
-                                phone: phone,
-                                is_attending: isAttending,
-                                guests: guests,
-                                days_attending: isAttending ? daysAttending : [],
-                                message: message,
-                                rsvp_id: rsvp_id
-                            }
-                        ])
-                        .select();
-
-                    if (error) throw error;
-
-                    // Handle attending vs not attending
-                    if (isAttending) {
-                        // Generate QR Code for attending guests
-                        document.getElementById('qrcode').innerHTML = '';
-                        const qrcode = new QRCode(document.getElementById('qrcode'), {
-                            text: rsvp_id,
-                            width: 200,
-                            height: 200,
-                            colorDark: '#000000',
-                            colorLight: '#ffffff',
-                            correctLevel: QRCode.CorrectLevel.H
-                        });
-                        
-                        // Send confirmation email with QR code
-                        const emailSent = await sendConfirmationEmail({
-                            first_name,
-                            last_name,
-                            email,
-                            rsvp_id,
-                            daysAttending,
-                            guests,
-                            phone,
-                            message,
-                            isAttending: true
-                        });
-                        
-                        // Show success message and QR code
-                        document.getElementById('successTitle').textContent = '🎉 Thank you for your RSVP!';
-                        document.getElementById('rsvpIdDisplay').textContent = rsvp_id;
-                        document.getElementById('successMessageText').textContent = 
-                            'Your RSVP has been confirmed. Please save your QR code below for check-in.';
-                        successMessage.style.display = 'block';
-                        qrContainer.style.display = 'block';
-                        
-                        // Update email status message
-                        if (emailSent) {
-                            document.getElementById('emailStatusMessage').textContent = 
-                                'A confirmation email with your QR code has been sent to your email address. Please save this QR code for check-in.';
-                        } else {
-                            document.getElementById('emailStatusMessage').innerHTML = 
-                                '<strong>Please save your QR code below for check-in.</strong> Email delivery issue - but your RSVP is confirmed!';
-                        }
-                    } else {
-                        // Not attending - show different success message (NO EMAIL SENT)
-                        document.getElementById('successTitle').textContent = 'Thank You for Your Response';
-                        document.getElementById('rsvpIdDisplay').textContent = rsvp_id;
-                        document.getElementById('successMessageText').textContent = 
-                            'Thank you for letting us know. We\'re sorry you can\'t make it, but we appreciate you taking the time to respond.';
-                        successMessage.style.display = 'block';
-                        qrContainer.style.display = 'none';
-                        
-                        // DO NOT SEND EMAIL for non-attendees
-                        showEmailStatus('success', 'Your response has been recorded. No email will be sent.');
-                    }
-                    
-                    // Hide the form
-                    rsvpForm.style.display = 'none';
-                    
-                    // Scroll to success message
-                    successMessage.scrollIntoView({ behavior: 'smooth' });
-                    
-                } catch (error) {
-                    console.error('Error saving to Supabase:', error);
-                    alert('There was an error saving your RSVP. Please try again.');
-                    showEmailStatus('error', 'RSVP failed. Please try again.');
-                } finally {
-                    // Reset button state
-                    const submitBtn = document.getElementById('submitBtn');
-                    submitBtn.textContent = 'Submit RSVP';
-                    submitBtn.disabled = false;
-                }
-            });
-        }
-
-        // New RSVP function
-        function newRSVP() {
-            document.getElementById('successMessage').style.display = 'none';
-            document.getElementById('qr-container').style.display = 'none';
-            document.getElementById('wedding-rsvp').style.display = 'block';
-            document.getElementById('wedding-rsvp').reset();
-            document.getElementById('guests-container').innerHTML = '';
-            guestCount = 0;
-            
-            // Reset attendance to "Yes"
-            document.getElementById('attending-yes').checked = true;
-            document.getElementById('attending-no').checked = false;
-            eventsSection.style.display = 'block';
-            
-            // Hide error messages
-            daysError.style.display = 'none';
-            
-            // Hide email status messages
-            showEmailStatus('none', '');
-            
-            // Scroll back to form
-            document.getElementById('rsvp').scrollIntoView({ behavior: 'smooth' });
-        }
-        
         // Smooth scrolling
         document.querySelectorAll('a[href^="#"]').forEach(anchor => {
             anchor.addEventListener('click', function (e) {
@@ -1945,6 +2015,33 @@ Ronak & Natasha's Wedding
                 header.style.padding = '20px 0';
                 header.style.boxShadow = '0 2px 10px rgba(0,0,0,0.1)';
             }
+        });
+
+        // Initialize everything when DOM is loaded
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize Supabase
+            if (!initializeSupabase()) {
+                console.error('Failed to initialize Supabase');
+                // Try again after 1 second
+                setTimeout(() => {
+                    if (!initializeSupabase()) {
+                        alert('Connection error. Please refresh the page.');
+                    }
+                }, 1000);
+            }
+            
+            // Initialize countdown
+            initializeCountdown();
+            
+            // Check RSVP status
+            setTimeout(() => {
+                checkRSVPStatus();
+            }, 500);
+            
+            // Setup real-time sync
+            setTimeout(() => {
+                setupWebsiteRealtimeSync();
+            }, 2000);
         });
     </script>
 </body>
