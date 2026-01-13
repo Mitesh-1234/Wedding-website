@@ -102,6 +102,18 @@
             gap: 10px;
             margin-bottom: 20px;
         }
+
+        /* Prevent background scroll when menu is open */
+        body.menu-open {
+            overflow: hidden;
+            height: 100vh;
+        }
+
+        /* Make sidebar scrollable */
+        .sidebar {
+            overflow-y: auto;
+            max-height: 1000vh;
+        }
         
         .stat-card {
             background: rgba(255,255,255,0.1);
@@ -940,11 +952,11 @@
                 </div>
                 
                 <ul class="nav-links">
-                    <li><a href="#" class="active" onclick="openTab('scanner')"><i class="fas fa-qrcode"></i> QR Scanner</a></li>
-                    <li><a href="#" onclick="openTab('guests')"><i class="fas fa-users"></i> Guest List</a></li>
-                    <li><a href="#" onclick="openTab('attendance')"><i class="fas fa-clipboard-check"></i> Attendance</a></li>
-                    <li><a href="#" onclick="openTab('reports')"><i class="fas fa-chart-bar"></i> Reports</a></li>
-                    <li><a href="#" onclick="openTab('settings')"><i class="fas fa-cog"></i> Settings</a></li>
+                    <li><a href="#" data-tab="scanner"><i class="fas fa-qrcode"></i> QR Scanner</a></li>
+                    <li><a href="#" data-tab="guests"><i class="fas fa-users"></i> Guest List</a></li>
+                    <li><a href="#" data-tab="attendance"><i class="fas fa-clipboard-check"></i> Attendance</a></li>
+                    <li><a href="#" data-tab="reports"><i class="fas fa-chart-bar"></i> Reports</a></li>
+                    <li><a href="#" data-tab="settings"><i class="fas fa-cog"></i> Settings</a></li>
                     <li class="logout-sidebar">
                         <a href="#" onclick="logout()" style="background: var(--danger); margin-top: 5px;">
                             <i class="fas fa-sign-out-alt"></i> Logout
@@ -956,7 +968,7 @@
             <!-- Main Content -->
             <main class="main-content">
                 <!-- Scanner Tab -->
-                <div class="content-section active" id="scanner">
+                <div class="content-section" id="scanner">
                     <div class="header">
                         <h2>QR Code Scanner</h2>
                     </div>
@@ -1326,18 +1338,108 @@
         const ADMIN_USERNAME = "admin";
         const ADMIN_PASSWORD = "ronak";
 
-        // Initialize Supabase client
+        // Current tab state
+        let CURRENT_TAB = 'scanner';
+
+        // ========== SUPABASE INITIALIZATION ==========
         function initializeSupabase() {
-            if (window.supabase && window.supabase.createClient) {
-                supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-                console.log('Supabase admin client initialized successfully');
-                return true;
+            try {
+                if (window.supabase && window.supabase.createClient) {
+                    supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+                    console.log('Supabase initialized successfully');
+                    return true;
+                } else {
+                    console.error('Supabase library not loaded');
+                    return false;
+                }
+            } catch (error) {
+                console.error('Error initializing Supabase:', error);
+                return false;
             }
-            return false;
+        }
+
+        // ========== TAB MANAGEMENT ==========
+        function saveTabState(tabName) {
+            localStorage.setItem('weddingAdminCurrentTab', tabName);
+        }
+
+        function restoreTabState() {
+            const savedTab = localStorage.getItem('weddingAdminCurrentTab');
+            if (savedTab && document.getElementById(savedTab)) {
+                CURRENT_TAB = savedTab;
+                
+                // Hide all tabs
+                document.querySelectorAll('.content-section').forEach(tab => {
+                    tab.classList.remove('active');
+                });
+                
+                // Remove active from all nav links
+                document.querySelectorAll('.nav-links a').forEach(link => {
+                    link.classList.remove('active');
+                });
+                
+                // Show saved tab
+                document.getElementById(CURRENT_TAB).classList.add('active');
+                
+                // Activate corresponding nav link
+                document.querySelectorAll('.nav-links a').forEach(link => {
+                    if (link.getAttribute('data-tab') === CURRENT_TAB) {
+                        link.classList.add('active');
+                    }
+                });
+                
+                if (CURRENT_TAB !== 'scanner') {
+                    stopScanner();
+                }
+                
+                console.log('Restored tab:', CURRENT_TAB);
+            } else {
+                // Default to scanner tab
+                CURRENT_TAB = 'scanner';
+                document.getElementById('scanner').classList.add('active');
+                document.querySelector('.nav-links a[data-tab="scanner"]').classList.add('active');
+                saveTabState('scanner');
+            }
+        }
+
+        function openTab(tabName) {
+            CURRENT_TAB = tabName;
+            
+            // Hide all tabs
+            document.querySelectorAll('.content-section').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            // Remove active from all nav links
+            document.querySelectorAll('.nav-links a').forEach(link => {
+                link.classList.remove('active');
+            });
+            
+            // Show selected tab
+            document.getElementById(tabName).classList.add('active');
+            
+            // Activate clicked nav link
+            event.currentTarget.classList.add('active');
+            
+            // Save tab state
+            saveTabState(tabName);
+            
+            if (tabName !== 'scanner') {
+                stopScanner();
+            }
+        }
+
+        function setupTabListeners() {
+            document.querySelectorAll('.nav-links a[data-tab]').forEach(link => {
+                link.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const tabName = this.getAttribute('data-tab');
+                    openTab(tabName);
+                });
+            });
         }
 
         // ========== CATERING HEADCOUNT FUNCTIONS ==========
-        
         function calculateCateringTotals(guests) {
             let day1Total = 0, day2Total = 0, day3Total = 0;
             let day1Primary = 0, day1Additional = 0;
@@ -1918,74 +2020,6 @@ Ronak & Natasha
             }
         }
 
-        // ========== ADMIN LOGIN & INITIALIZATION ==========
-        function checkExistingLogin() {
-            const savedLogin = localStorage.getItem('weddingAdminLoggedIn');
-            
-            if (savedLogin === 'true') {
-                document.getElementById('loginSection').style.display = 'none';
-                document.getElementById('adminDashboard').style.display = 'block';
-                document.getElementById('realtimeIndicator').style.display = 'block';
-                
-                loadFormspreeConfig();
-                loadRSVPSettings();
-                initDaySelection();
-                setupSearch();
-                loadDashboardData();
-                setupRealtimeSubscription();
-            } else {
-                document.getElementById('loginSection').style.display = 'block';
-                document.getElementById('adminDashboard').style.display = 'none';
-                document.getElementById('realtimeIndicator').style.display = 'none';
-            }
-        }
-
-        // ========== MAIN INITIALIZATION ==========
-        document.addEventListener('DOMContentLoaded', function() {
-            // Initialize Supabase first
-            if (!initializeSupabase()) {
-                console.error('Failed to initialize Supabase');
-                // Try again after 1 second
-                setTimeout(() => {
-                    if (!initializeSupabase()) {
-                        alert('Connection error. Please refresh the page.');
-                        return;
-                    }
-                    checkExistingLogin();
-                }, 1000);
-            } else {
-                checkExistingLogin();
-            }
-            
-            // Mobile menu toggle
-            const hamburger = document.getElementById('hamburger');
-            const sidebar = document.getElementById('sidebar');
-            const overlay = document.getElementById('overlay');
-
-            hamburger.addEventListener('click', () => {
-                sidebar.classList.toggle('active');
-                overlay.classList.toggle('active');
-            });
-
-            overlay.addEventListener('click', () => {
-                sidebar.classList.remove('active');
-                overlay.classList.remove('active');
-            });
-
-            // Close menu when clicking on a link
-            document.querySelectorAll('.nav-links a').forEach(link => {
-                link.addEventListener('click', () => {
-                    sidebar.classList.remove('active');
-                    overlay.classList.remove('active');
-                });
-            });
-
-            // RSVP toggle change handler
-            document.getElementById('rsvpToggle').addEventListener('change', function() {
-                updateRSVPStatusDisplay();
-            });
-        });
-
         // ========== DAY SELECTION ==========
         function initDaySelection() {
             const dayOptions = document.querySelectorAll('.day-option');
@@ -2295,7 +2329,84 @@ Ronak & Natasha
             }, 5000);
         }
 
-        // ========== LOGIN ==========
+        // ========== LOGIN & INITIALIZATION ==========
+        function checkExistingLogin() {
+            const savedLogin = localStorage.getItem('weddingAdminLoggedIn');
+            
+            if (savedLogin === 'true') {
+                document.getElementById('loginSection').style.display = 'none';
+                document.getElementById('adminDashboard').style.display = 'block';
+                document.getElementById('realtimeIndicator').style.display = 'block';
+                
+                // Restore tab state FIRST
+                restoreTabState();
+                
+                loadFormspreeConfig();
+                loadRSVPSettings();
+                initDaySelection();
+                setupSearch();
+                loadDashboardData();
+                setupRealtimeSubscription();
+            } else {
+                document.getElementById('loginSection').style.display = 'block';
+                document.getElementById('adminDashboard').style.display = 'none';
+                document.getElementById('realtimeIndicator').style.display = 'none';
+            }
+        }
+
+        // ========== MAIN INITIALIZATION ==========
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize Supabase first
+            if (!initializeSupabase()) {
+                console.error('Failed to initialize Supabase');
+                // Try again after 1 second
+                setTimeout(() => {
+                    if (!initializeSupabase()) {
+                        alert('Connection error. Please refresh the page.');
+                        return;
+                    }
+                    checkExistingLogin();
+                }, 1000);
+            } else {
+                checkExistingLogin();
+            }
+            
+            // Setup tab listeners
+            setupTabListeners();
+            
+            // Mobile menu toggle
+            const hamburger = document.getElementById('hamburger');
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('overlay');
+
+            hamburger.addEventListener('click', () => {
+                sidebar.classList.toggle('active');
+                overlay.classList.toggle('active');
+                document.body.classList.toggle('menu-open');
+            });
+
+            overlay.addEventListener('click', () => {
+                sidebar.classList.remove('active');
+                overlay.classList.remove('active');
+                document.body.classList.remove('menu-open');
+            });
+
+            // Close menu when clicking on a link
+            document.querySelectorAll('.nav-links a').forEach(link => {
+                link.addEventListener('click', () => {
+                    sidebar.classList.remove('active');
+                    overlay.classList.remove('active');
+                    document.body.classList.remove('menu-open');
+                });
+            });
+
+            // RSVP toggle change handler
+            document.getElementById('rsvpToggle').addEventListener('change', function() {
+                updateRSVPStatusDisplay();
+            });
+        });
+
+        // ========== LOGIN FORM ==========
         document.getElementById('adminLoginForm').addEventListener('submit', async function(e) {
             e.preventDefault();
             
@@ -2309,6 +2420,9 @@ Ronak & Natasha
                 document.getElementById('adminDashboard').style.display = 'block';
                 document.getElementById('realtimeIndicator').style.display = 'block';
                 
+                // Restore tab state or use default
+                restoreTabState();
+                
                 loadFormspreeConfig();
                 loadRSVPSettings();
                 initDaySelection();
@@ -2319,26 +2433,6 @@ Ronak & Natasha
                 alert('Invalid credentials! Please try again.');
             }
         });
-
-        // ========== TAB FUNCTIONALITY ==========
-        function openTab(tabName) {
-            const tabContents = document.getElementsByClassName('content-section');
-            for (let i = 0; i < tabContents.length; i++) {
-                tabContents[i].classList.remove('active');
-            }
-            
-            const navLinks = document.querySelectorAll('.nav-links a');
-            for (let i = 0; i < navLinks.length; i++) {
-                navLinks[i].classList.remove('active');
-            }
-            
-            document.getElementById(tabName).classList.add('active');
-            event.currentTarget.classList.add('active');
-            
-            if (tabName !== 'scanner') {
-                stopScanner();
-            }
-        }
 
         // ========== REAL-TIME SUBSCRIPTION ==========
         function setupRealtimeSubscription() {
@@ -2663,6 +2757,7 @@ Ronak & Natasha
         // ========== LOGOUT ==========
         function logout() {
             localStorage.removeItem('weddingAdminLoggedIn');
+            localStorage.removeItem('weddingAdminCurrentTab');
             
             document.getElementById('adminDashboard').style.display = 'none';
             document.getElementById('loginSection').style.display = 'block';
