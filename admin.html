@@ -105,7 +105,7 @@
         
         .stat-card {
             background: rgba(255,255,255,0.1);
-            padding: -1.1px;
+            padding: 10px;
             border-radius: 8px;
             text-align: center;
         }
@@ -134,7 +134,7 @@
         .nav-links a {
             display: flex;
             align-items: center;
-            padding: 5px 5px;
+            padding: 10px 15px;
             color: var(--light);
             text-decoration: none;
             border-radius: 5px;
@@ -489,7 +489,6 @@
                 height: 250px;
             }
             
-            /* Improved table responsiveness */
             .table-container {
                 border: 1px solid #eee;
                 border-radius: 8px;
@@ -564,7 +563,7 @@
             display: block;
         }
         
-        /* Real-time indicator - Top Right Position */
+        /* Real-time indicator */
         .realtime-indicator {
             position: fixed;
             top: 20px;
@@ -582,7 +581,6 @@
             background: var(--danger);
         }
 
-        /* Adjust position for mobile */
         @media (max-width: 768px) {
             .realtime-indicator {
                 top: 15px;
@@ -1298,15 +1296,19 @@
         // Initialize Supabase
         const SUPABASE_URL = 'https://hlmdlrfqhcttpqhlnhlh.supabase.co';
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhsbWRscmZxaGN0dHBxaGxuaGxoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjA3MDMyNzEsImV4cCI6MjA3NjI3OTI3MX0.USnlr4Q-8Aad1a_R2_K-wXzWaH8nfy-CQFaEOuP-MHI';
-        // const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-        // if (!window.supabase) {
-        //     window.supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-        // }
-          window.supabaseClient = window.supabase.createClient(
-        SUPABASE_URL,
-        SUPABASE_ANON_KEY
-    );
-
+        
+        let supabaseClient;
+        let guests = [];
+        let attendance = [];
+        let currentScanDay = 'day1';
+        let videoStream = null;
+        let scanActive = false;
+        let canvasElement = null;
+        let canvasContext = null;
+        let lastScanTime = 0;
+        const SCAN_COOLDOWN = 3000;
+        let currentGuestFilter = 'all';
+        let searchQuery = '';
 
         // Formspree Configuration
         let FORMSPREE_CONFIG = {
@@ -1320,90 +1322,22 @@
             disabledMessage: 'Thank you for your interest! The RSVP period has now closed. If you have any questions, please contact us directly.'
         };
 
-        // Load RSVP settings from localStorage
-        function loadRSVPSettings() {
-            const savedSettings = localStorage.getItem('weddingRSVPSettings');
-            if (savedSettings) {
-                RSVP_SETTINGS = { ...RSVP_SETTINGS, ...JSON.parse(savedSettings) };
-                document.getElementById('rsvpToggle').checked = RSVP_SETTINGS.enabled;
-                document.getElementById('rsvpDisabledMessage').value = RSVP_SETTINGS.disabledMessage;
-                updateRSVPStatusDisplay();
-            }
-        }
-
-        // Save RSVP settings to Supabase for cross-device sync
-        async function saveRSVPSettings() {
-            try {
-                RSVP_SETTINGS.enabled = document.getElementById('rsvpToggle').checked;
-                RSVP_SETTINGS.disabledMessage = document.getElementById('rsvpDisabledMessage').value;
-                
-                // Save to localStorage for immediate effect
-                localStorage.setItem('weddingRSVPSettings', JSON.stringify(RSVP_SETTINGS));
-                
-                // Also save to Supabase for cross-device sync
-                const { error } = await supabaseClient
-                    .from('settings')
-                    .upsert({
-                        id: 1,
-                        rsvp_enabled: RSVP_SETTINGS.enabled,
-                        disabled_message: RSVP_SETTINGS.disabledMessage,
-                        updated_at: new Date().toISOString()
-                    });
-
-                if (error) {
-                    console.error('Supabase save error:', error);
-                    // Even if Supabase fails, localStorage will work
-                    alert('Settings saved locally. Supabase sync failed: ' + error.message);
-                } else {
-                    alert('RSVP settings saved successfully! Changes will sync across all devices.');
-                }
-                
-                updateRSVPStatusDisplay();
-            } catch (error) {
-                console.error('Error saving RSVP settings:', error);
-                alert('Error saving RSVP settings: ' + error.message);
-            }
-        }
-
-        // Update RSVP status display
-        function updateRSVPStatusDisplay() {
-            const statusText = document.getElementById('rsvpStatusText');
-            const statusDisplay = document.getElementById('currentStatusDisplay');
-            const messagePreview = document.getElementById('messagePreview');
-            
-            if (RSVP_SETTINGS.enabled) {
-                statusText.textContent = 'RSVP System: ACTIVE';
-                statusText.className = 'rsvp-status-badge rsvp-active';
-                statusDisplay.textContent = 'Active - Guests can submit RSVPs';
-            } else {
-                statusText.textContent = 'RSVP System: DISABLED';
-                statusText.className = 'rsvp-status-badge rsvp-inactive';
-                statusDisplay.textContent = 'Disabled - Guests see message only';
-            }
-            
-            messagePreview.textContent = RSVP_SETTINGS.disabledMessage;
-        }
-
-        // Simple admin credentials
+        // Admin credentials
         const ADMIN_USERNAME = "admin";
         const ADMIN_PASSWORD = "ronak";
 
-        // Global variables
-        let guests = [];
-        let attendance = [];
-        let currentScanDay = 'day1';
-        let videoStream = null;
-        let scanActive = false;
-        let canvasElement = null;
-        let canvasContext = null;
-        let lastScanTime = 0;
-        const SCAN_COOLDOWN = 3000;
-        let currentGuestFilter = 'all';
-        let searchQuery = '';
+        // Initialize Supabase client
+        function initializeSupabase() {
+            if (window.supabase && window.supabase.createClient) {
+                supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+                console.log('Supabase admin client initialized successfully');
+                return true;
+            }
+            return false;
+        }
 
         // ========== CATERING HEADCOUNT FUNCTIONS ==========
         
-        // Calculate catering totals
         function calculateCateringTotals(guests) {
             let day1Total = 0, day2Total = 0, day3Total = 0;
             let day1Primary = 0, day1Additional = 0;
@@ -1440,7 +1374,6 @@
             };
         }
 
-        // Export catering data to CSV
         function exportCateringData() {
             const cateringTotals = calculateCateringTotals(guests);
             
@@ -1470,14 +1403,12 @@
         function filterAndDisplayGuests() {
             let filteredGuests = guests;
             
-            // Apply attendance filter
             if (currentGuestFilter === 'attending') {
                 filteredGuests = filteredGuests.filter(g => g.is_attending);
             } else if (currentGuestFilter === 'not-attending') {
                 filteredGuests = filteredGuests.filter(g => !g.is_attending);
             }
             
-            // Apply search filter
             if (searchQuery) {
                 filteredGuests = filteredGuests.filter(guest => {
                     const fullName = `${guest.first_name} ${guest.last_name}`.toLowerCase();
@@ -1492,7 +1423,6 @@
                 });
             }
             
-            // Update search results text
             const searchResults = document.getElementById('searchResults');
             if (searchQuery) {
                 searchResults.textContent = `Found ${filteredGuests.length} guest(s) matching "${searchQuery}"`;
@@ -1508,7 +1438,6 @@
             tbody.innerHTML = '';
             
             filteredGuests.forEach(guest => {
-                // Get check-in status from attendance records (only for attending guests)
                 const guestAttendance = attendance.filter(a => a.rsvp_id === guest.rsvp_id);
                 const checkedInDays = [...new Set(guestAttendance.map(a => a.day))];
                 
@@ -1518,11 +1447,9 @@
                 
                 const additionalGuestsCount = guest.guests ? guest.guests.length : 0;
                 
-                // Check if email is valid
                 const hasValidEmail = guest.email && guest.email.trim() !== '' && isValidEmail(guest.email);
                 const emailDisplay = hasValidEmail ? guest.email : `<span class="no-email">No valid email</span>`;
                 
-                // Attendance status badge
                 const attendanceStatus = guest.is_attending ? 
                     '<span class="attendance-badge attending-badge">Attending</span>' : 
                     '<span class="attendance-badge not-attending-badge">Not Attending</span>';
@@ -1563,7 +1490,6 @@
                 tbody.appendChild(row);
             });
             
-            // Load not attending table
             loadNotAttendingTable();
         }
 
@@ -1590,13 +1516,11 @@
         }
 
         // ========== FORMSPREE FUNCTIONS ==========
-        // Generate QR Code using external service
         function generateQRCodeImage(rsvpId) {
             const encodedData = encodeURIComponent(rsvpId);
             return `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodedData}&format=png&color=000000&bgcolor=FFFFFF&margin=10`;
         }
 
-        // Test Formspree Setup
         async function testFormspreeSetup() {
             if (!FORMSPREE_CONFIG.endpoint) {
                 showEmailStatus('error', 'Please configure Formspree first. Enter your endpoint URL and save settings.');
@@ -1653,7 +1577,6 @@ If you can see the QR code above and receive this email in both your inbox and C
             }
         }
 
-        // Send QR Code to Single Guest using Formspree - FIXED VERSION
         async function sendQRCodeToGuest(guestId) {
             console.log('sendQRCodeToGuest called with ID:', guestId);
             
@@ -1666,7 +1589,6 @@ If you can see the QR code above and receive this email in both your inbox and C
             
             console.log('Found guest:', guest);
             
-            // VALIDATION - Check if email exists and is valid
             if (!guest.email || guest.email.trim() === '') {
                 showEmailStatus('error', `No email address for ${guest.first_name} ${guest.last_name}`);
                 return false;
@@ -1679,7 +1601,6 @@ If you can see the QR code above and receive this email in both your inbox and C
                 return false;
             }
 
-            // Check Formspree configuration
             if (!FORMSPREE_CONFIG.endpoint || FORMSPREE_CONFIG.endpoint.trim() === '') {
                 showEmailStatus('error', 'Formspree not configured. Please set up your email settings first.');
                 return false;
@@ -1688,13 +1609,11 @@ If you can see the QR code above and receive this email in both your inbox and C
             try {
                 showEmailStatus('loading', `Sending QR code to ${email}`);
                 
-                // Generate QR code URL
                 const qrCodeUrl = generateQRCodeImage(guest.rsvp_id);
                 
                 console.log('Sending email to:', email);
                 console.log('Using Formspree endpoint:', FORMSPREE_CONFIG.endpoint);
 
-                // Use URLSearchParams with _cc parameter
                 const formData = new URLSearchParams();
                 
                 formData.append('_subject', `🎉 Your Wedding QR Code - ${FORMSPREE_CONFIG.fromName}`);
@@ -1744,7 +1663,6 @@ Ronak & Natasha
                     console.log('Formspree success:', result);
                     showEmailStatus('success', `✅ QR code sent to ${email} (with CC)`);
                     
-                    // Try to mark as sent, but don't fail if this doesn't work
                     try {
                         await markEmailAsSent(guest.id);
                     } catch (updateError) {
@@ -1765,9 +1683,7 @@ Ronak & Natasha
             }
         }
 
-        // Send QR Codes to All Guests with Emails
         async function sendQRCodeToAllGuests() {
-            // Filter guests with valid emails and who are attending
             const guestsWithEmails = guests.filter(g => 
                 g.is_attending && 
                 g.email && 
@@ -1805,24 +1721,18 @@ Ronak & Natasha
                     failCount++;
                 }
                 
-                // Update progress
                 showEmailStatus('loading', `Progress: ${i + 1}/${guestsWithEmails.length} guests processed (${successCount} success, ${failCount} failed)`);
                 
-                // Small delay to avoid rate limiting (Formspree allows 1 request/second)
                 await new Promise(resolve => setTimeout(resolve, 1500));
             }
             
             showEmailStatus('success', `✅ Email sending completed! ${successCount} successful, ${failCount} failed. All emails include CC to guests.`);
         }
 
-        // Send to guests who haven't received emails yet
         async function sendQRCodeToUnsentGuests() {
-            // For now, we'll send to all guests with emails
-            // You can modify this later to track which emails have been sent
             await sendQRCodeToAllGuests();
         }
 
-        // Show Email Status
         function showEmailStatus(type, message) {
             document.getElementById('emailLoading').style.display = 'none';
             document.getElementById('emailSuccess').style.display = 'none';
@@ -1844,7 +1754,6 @@ Ronak & Natasha
             }
         }
 
-        // Mark email as sent in database
         async function markEmailAsSent(guestId) {
             try {
                 const { error } = await supabaseClient
@@ -1862,7 +1771,6 @@ Ronak & Natasha
         function filterGuests(filter) {
             currentGuestFilter = filter;
             
-            // Update active button
             document.getElementById('filterAll').classList.remove('active');
             document.getElementById('filterAttending').classList.remove('active');
             document.getElementById('filterNotAttending').classList.remove('active');
@@ -1882,8 +1790,135 @@ Ronak & Natasha
             filterAndDisplayGuests();
         }
 
-        // ========== EXISTING ADMIN FUNCTIONS ==========
-        // Check if user is already logged in
+        // ========== RSVP SETTINGS FUNCTIONS ==========
+        async function loadRSVPSettings() {
+            try {
+                const { data, error } = await supabaseClient
+                    .from('settings')
+                    .select('*')
+                    .eq('id', 1)
+                    .single();
+
+                if (!error && data) {
+                    RSVP_SETTINGS.enabled = data.rsvp_enabled;
+                    RSVP_SETTINGS.disabledMessage = data.disabled_message;
+                    console.log('Loaded settings from Supabase:', RSVP_SETTINGS);
+                } else {
+                    const savedSettings = localStorage.getItem('weddingRSVPSettings');
+                    if (savedSettings) {
+                        RSVP_SETTINGS = { ...RSVP_SETTINGS, ...JSON.parse(savedSettings) };
+                        console.log('Loaded settings from localStorage:', RSVP_SETTINGS);
+                    }
+                }
+                
+                document.getElementById('rsvpToggle').checked = RSVP_SETTINGS.enabled;
+                document.getElementById('rsvpDisabledMessage').value = RSVP_SETTINGS.disabledMessage;
+                updateRSVPStatusDisplay();
+                
+            } catch (error) {
+                console.error('Error loading RSVP settings:', error);
+                const savedSettings = localStorage.getItem('weddingRSVPSettings');
+                if (savedSettings) {
+                    RSVP_SETTINGS = { ...RSVP_SETTINGS, ...JSON.parse(savedSettings) };
+                    document.getElementById('rsvpToggle').checked = RSVP_SETTINGS.enabled;
+                    document.getElementById('rsvpDisabledMessage').value = RSVP_SETTINGS.disabledMessage;
+                    updateRSVPStatusDisplay();
+                }
+            }
+        }
+
+        async function saveRSVPSettings() {
+            try {
+                RSVP_SETTINGS.enabled = document.getElementById('rsvpToggle').checked;
+                RSVP_SETTINGS.disabledMessage = document.getElementById('rsvpDisabledMessage').value;
+                
+                console.log('Saving RSVP settings:', RSVP_SETTINGS);
+                
+                localStorage.setItem('weddingRSVPSettings', JSON.stringify(RSVP_SETTINGS));
+                
+                const { data, error } = await supabaseClient
+                    .from('settings')
+                    .upsert([
+                        {
+                            id: 1,
+                            rsvp_enabled: RSVP_SETTINGS.enabled,
+                            disabled_message: RSVP_SETTINGS.disabledMessage,
+                            updated_at: new Date().toISOString()
+                        }
+                    ]);
+
+                if (error) {
+                    console.error('Supabase save error:', error);
+                    alert('Settings saved locally. Supabase sync failed: ' + error.message);
+                } else {
+                    console.log('Settings saved to Supabase:', data);
+                    alert('✅ RSVP settings saved and synced across all devices!');
+                }
+                
+                updateRSVPStatusDisplay();
+            } catch (error) {
+                console.error('Error saving RSVP settings:', error);
+                alert('Error saving RSVP settings: ' + error.message);
+            }
+        }
+
+        function updateRSVPStatusDisplay() {
+            const statusText = document.getElementById('rsvpStatusText');
+            const statusDisplay = document.getElementById('currentStatusDisplay');
+            const messagePreview = document.getElementById('messagePreview');
+            
+            if (RSVP_SETTINGS.enabled) {
+                statusText.textContent = 'RSVP System: ACTIVE';
+                statusText.className = 'rsvp-status-badge rsvp-active';
+                statusDisplay.textContent = 'Active - Guests can submit RSVPs';
+            } else {
+                statusText.textContent = 'RSVP System: DISABLED';
+                statusText.className = 'rsvp-status-badge rsvp-inactive';
+                statusDisplay.textContent = 'Disabled - Guests see message only';
+            }
+            
+            messagePreview.textContent = RSVP_SETTINGS.disabledMessage;
+        }
+
+        // ========== REAL-TIME SETTINGS SYNC ==========
+        function setupSettingsRealtimeSubscription() {
+            try {
+                const settingsSubscription = supabaseClient
+                    .channel('settings-changes')
+                    .on('postgres_changes', 
+                        { 
+                            event: '*', 
+                            schema: 'public', 
+                            table: 'settings',
+                            filter: 'id=eq.1'
+                        },
+                        (payload) => {
+                            console.log('Settings changed:', payload);
+                            if (payload.new) {
+                                RSVP_SETTINGS.enabled = payload.new.rsvp_enabled;
+                                RSVP_SETTINGS.disabledMessage = payload.new.disabled_message;
+                                
+                                document.getElementById('rsvpToggle').checked = RSVP_SETTINGS.enabled;
+                                document.getElementById('rsvpDisabledMessage').value = RSVP_SETTINGS.disabledMessage;
+                                updateRSVPStatusDisplay();
+                                
+                                localStorage.setItem('weddingRSVPSettings', JSON.stringify(RSVP_SETTINGS));
+                                
+                                alert('⚡ RSVP settings updated from another device!');
+                            }
+                        }
+                    )
+                    .subscribe((status) => {
+                        console.log('Settings subscription status:', status);
+                    });
+                    
+                return settingsSubscription;
+            } catch (error) {
+                console.error('Settings subscription error:', error);
+            }
+        }
+
+        // ========== ADMIN LOGIN & INITIALIZATION ==========
         function checkExistingLogin() {
             const savedLogin = localStorage.getItem('weddingAdminLoggedIn');
             
@@ -1905,9 +1940,22 @@ Ronak & Natasha
             }
         }
 
-        // Initialize when page loads
+        // ========== MAIN INITIALIZATION ==========
         document.addEventListener('DOMContentLoaded', function() {
-            checkExistingLogin();
+            // Initialize Supabase first
+            if (!initializeSupabase()) {
+                console.error('Failed to initialize Supabase');
+                // Try again after 1 second
+                setTimeout(() => {
+                    if (!initializeSupabase()) {
+                        alert('Connection error. Please refresh the page.');
+                        return;
+                    }
+                    checkExistingLogin();
+                }, 1000);
+            } else {
+                checkExistingLogin();
+            }
             
             // Mobile menu toggle
             const hamburger = document.getElementById('hamburger');
@@ -1938,7 +1986,7 @@ Ronak & Natasha
             });
         });
 
-        // Initialize day selection
+        // ========== DAY SELECTION ==========
         function initDaySelection() {
             const dayOptions = document.querySelectorAll('.day-option');
             dayOptions.forEach(option => {
@@ -1953,7 +2001,6 @@ Ronak & Natasha
             });
         }
 
-        // Update day display text
         function updateDayDisplay() {
             const dayDisplay = document.getElementById('currentDayDisplay');
             let dayText = '';
@@ -1965,14 +2012,13 @@ Ronak & Natasha
             dayDisplay.textContent = `Currently Scanning: ${dayText}`;
         }
 
-        // Hide all scanner results
+        // ========== SCANNER FUNCTIONS ==========
         function hideAllScannerResults() {
             document.getElementById('scannerSuccess').style.display = 'none';
             document.getElementById('scannerWarning').style.display = 'none';
             document.getElementById('scannerError').style.display = 'none';
         }
 
-        // Show scanner result
         function showScannerResult(type, message) {
             hideAllScannerResults();
             
@@ -1992,7 +2038,6 @@ Ronak & Natasha
             }
         }
 
-        // Cooldown timer display
         function startCooldownTimer() {
             const indicator = document.getElementById('cooldownIndicator');
             const timer = document.getElementById('cooldownTimer');
@@ -2013,7 +2058,6 @@ Ronak & Natasha
             }, 1000);
         }
 
-        // Initialize scanner
         function initScanner() {
             const video = document.getElementById("qr-video");
             canvasElement = document.getElementById("qr-canvas");
@@ -2047,7 +2091,6 @@ Ronak & Natasha
             });
         }
 
-        // Stop scanner
         function stopScanner() {
             scanActive = false;
             
@@ -2065,7 +2108,6 @@ Ronak & Natasha
             hideAllScannerResults();
         }
 
-        // Scan for QR codes with cooldown protection
         function scanQRCode() {
             if (!scanActive) return;
             
@@ -2110,7 +2152,6 @@ Ronak & Natasha
             }
         }
 
-        // Draw box around detected QR code
         function drawScannerBox(location) {
             if (!canvasElement || !canvasContext) return;
             
@@ -2133,11 +2174,9 @@ Ronak & Natasha
             }
         }
 
-        // Handle scan results with Supabase
         async function handleScanResult(result) {
             const now = Date.now();
             
-            // Check cooldown
             if (now - lastScanTime < SCAN_COOLDOWN) {
                 console.log("Scan cooldown active, ignoring scan...");
                 return;
@@ -2146,12 +2185,10 @@ Ronak & Natasha
             const rsvpId = result.trim();
             console.log("Scanned QR code:", rsvpId, "for day:", currentScanDay);
             
-            // Set cooldown
             lastScanTime = now;
             startCooldownTimer();
             
             try {
-                // Find guest in Supabase
                 const { data: guestData, error: guestError } = await supabaseClient
                     .from('guests')
                     .select('*')
@@ -2165,19 +2202,16 @@ Ronak & Natasha
 
                 const guest = guestData;
                 
-                // Check if guest is attending
                 if (!guest.is_attending) {
                     showScannerResult('error', `${guest.first_name} ${guest.last_name} is not attending the wedding.`);
                     return;
                 }
                 
-                // Check if guest is attending the selected day
                 if (!guest.days_attending || !guest.days_attending.includes(currentScanDay)) {
                     showScannerResult('error', `${guest.first_name} ${guest.last_name} is not attending this event day.`);
                     return;
                 }
                 
-                // Check if already checked in for this specific day
                 const { data: existingAttendance, error: attendanceError } = await supabaseClient
                     .from('attendance')
                     .select('*')
@@ -2191,7 +2225,6 @@ Ronak & Natasha
                 }
 
                 if (existingAttendance && existingAttendance.length > 0) {
-                    // Already checked in for this day
                     let dayName = '';
                     switch(currentScanDay) {
                         case 'day1': dayName = 'Welcome Dinner'; break;
@@ -2205,7 +2238,6 @@ Ronak & Natasha
                          Previous check-in: ${new Date(existingAttendance[0].check_in_time).toLocaleTimeString()}`
                     );
                 } else {
-                    // Record attendance for this specific day
                     const { data: newAttendance, error: insertError } = await supabaseClient
                         .from('attendance')
                         .insert([
@@ -2223,7 +2255,6 @@ Ronak & Natasha
                         console.error('Error saving attendance:', insertError);
                         showScannerResult('error', 'Error saving attendance record!');
                     } else {
-                        // Update guest's checked_in_days array
                         const updatedCheckedInDays = guest.checked_in_days || [];
                         if (!updatedCheckedInDays.includes(currentScanDay)) {
                             updatedCheckedInDays.push(currentScanDay);
@@ -2238,7 +2269,6 @@ Ronak & Natasha
                             }
                         }
                         
-                        // Show success message
                         let dayName = '';
                         switch(currentScanDay) {
                             case 'day1': dayName = 'Welcome Dinner'; break;
@@ -2252,7 +2282,6 @@ Ronak & Natasha
                              Time: ${new Date().toLocaleTimeString()}`
                         );
                         
-                        // IMMEDIATELY update the dashboard and guest list
                         await loadDashboardData();
                     }
                 }
@@ -2266,16 +2295,14 @@ Ronak & Natasha
             }, 5000);
         }
 
-        // Simple login functionality
+        // ========== LOGIN ==========
         document.getElementById('adminLoginForm').addEventListener('submit', async function(e) {
             e.preventDefault();
             
             const username = document.getElementById('username').value;
             const password = document.getElementById('password').value;
             
-            // Simple authentication
             if (username === ADMIN_USERNAME && password === ADMIN_PASSWORD) {
-                // Save login state to localStorage
                 localStorage.setItem('weddingAdminLoggedIn', 'true');
                 
                 document.getElementById('loginSection').style.display = 'none';
@@ -2293,7 +2320,7 @@ Ronak & Natasha
             }
         });
 
-        // Tab functionality
+        // ========== TAB FUNCTIONALITY ==========
         function openTab(tabName) {
             const tabContents = document.getElementsByClassName('content-section');
             for (let i = 0; i < tabContents.length; i++) {
@@ -2313,10 +2340,9 @@ Ronak & Natasha
             }
         }
 
-        // Setup real-time subscription
+        // ========== REAL-TIME SUBSCRIPTION ==========
         function setupRealtimeSubscription() {
             try {
-                // Subscribe to attendance changes
                 const attendanceSubscription = supabaseClient
                     .channel('attendance-changes')
                     .on('postgres_changes', 
@@ -2331,7 +2357,6 @@ Ronak & Natasha
                         updateRealtimeIndicator(status);
                     });
 
-                // Subscribe to guest changes
                 const guestSubscription = supabaseClient
                     .channel('guest-changes')
                     .on('postgres_changes', 
@@ -2345,6 +2370,9 @@ Ronak & Natasha
                         console.log('Guest subscription status:', status);
                         updateRealtimeIndicator(status);
                     });
+                    
+                const settingsSubscription = setupSettingsRealtimeSubscription();
+                
             } catch (error) {
                 console.error('Real-time subscription error:', error);
                 document.getElementById('realtimeIndicator').textContent = '🔴 Connection Error';
@@ -2352,7 +2380,6 @@ Ronak & Natasha
             }
         }
 
-        // Update real-time connection indicator
         function updateRealtimeIndicator(status) {
             const indicator = document.getElementById('realtimeIndicator');
             if (status === 'SUBSCRIBED') {
@@ -2364,10 +2391,9 @@ Ronak & Natasha
             }
         }
 
-        // Dashboard data loading
+        // ========== DASHBOARD DATA LOADING ==========
         async function loadDashboardData() {
             try {
-                // Load guests from guests table
                 const { data: guestsData, error: guestsError } = await supabaseClient
                     .from('guests')
                     .select('*')
@@ -2376,7 +2402,6 @@ Ronak & Natasha
                 if (guestsError) throw guestsError;
                 guests = guestsData || [];
 
-                // Load attendance
                 const { data: attendanceData, error: attendanceError } = await supabaseClient
                     .from('attendance')
                     .select('*')
@@ -2385,7 +2410,6 @@ Ronak & Natasha
                 if (attendanceError) throw attendanceError;
                 attendance = attendanceData || [];
 
-                // Update statistics
                 const totalGuests = guests.length;
                 const attendingGuests = guests.filter(g => g.is_attending).length;
                 const notAttendingGuests = guests.filter(g => !g.is_attending).length;
@@ -2412,7 +2436,6 @@ Ronak & Natasha
                 document.getElementById('day2CheckedIn').textContent = day2Checked;
                 document.getElementById('day3CheckedIn').textContent = day3Checked;
                 
-                // Calculate and display catering totals
                 const cateringTotals = calculateCateringTotals(guests);
 
                 document.getElementById('cateringDay1Total').textContent = cateringTotals.day1.total;
@@ -2483,7 +2506,6 @@ Ronak & Natasha
             const ctx = document.getElementById('attendanceChart');
             if (!ctx) return;
             
-            // Clear existing chart
             if (ctx.chart) {
                 ctx.chart.destroy();
             }
@@ -2528,7 +2550,6 @@ Ronak & Natasha
             const ctx = document.getElementById('rsvpChart');
             if (!ctx) return;
             
-            // Clear existing chart
             if (ctx.chart) {
                 ctx.chart.destroy();
             }
@@ -2568,7 +2589,7 @@ Ronak & Natasha
             });
         }
 
-        // Export functionality
+        // ========== EXPORT FUNCTIONALITY ==========
         async function exportGuests() {
             try {
                 const { data: guestsData, error } = await supabaseClient
@@ -2639,9 +2660,8 @@ Ronak & Natasha
             document.body.removeChild(a);
         }
 
-        // Logout functionality
+        // ========== LOGOUT ==========
         function logout() {
-            // Clear login state
             localStorage.removeItem('weddingAdminLoggedIn');
             
             document.getElementById('adminDashboard').style.display = 'none';
@@ -2652,7 +2672,7 @@ Ronak & Natasha
             stopScanner();
         }
 
-        // Show QR Code Preview
+        // ========== QR CODE PREVIEW ==========
         async function showQRPreview(rsvpId) {
             const qrCodeUrl = generateQRCodeImage(rsvpId);
             
@@ -2663,12 +2683,11 @@ Ronak & Natasha
             document.getElementById('qrPreview').style.display = 'block';
         }
 
-        // Close QR Preview
         function closeQRPreview() {
             document.getElementById('qrPreview').style.display = 'none';
         }
 
-        // Save Formspree config to localStorage
+        // ========== FORMSPREE CONFIG ==========
         function saveFormspreeConfig() {
             FORMSPREE_CONFIG.endpoint = document.getElementById('formspreeEndpoint').value.trim();
             FORMSPREE_CONFIG.fromName = document.getElementById('fromName').value.trim();
@@ -2682,7 +2701,6 @@ Ronak & Natasha
             showEmailStatus('success', 'Formspree configuration saved successfully!');
         }
 
-        // Load Formspree config from localStorage
         function loadFormspreeConfig() {
             const savedConfig = localStorage.getItem('weddingFormspreeConfig');
             if (savedConfig) {
@@ -2692,7 +2710,7 @@ Ronak & Natasha
             }
         }
 
-        // Debug guest emails function
+        // ========== DEBUG ==========
         function debugGuestEmails() {
             console.log('=== DEBUG: Guest Email Analysis ===');
             const guestsWithEmails = guests.filter(g => g.email && g.email.trim() !== '');
